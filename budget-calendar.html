@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Calendar · Month View</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;background:#f4f3ee;color:#0b0b0b;padding:1.5rem;}
+.wrap{max-width:1180px;margin:0 auto;}
+
+.top-nav{display:flex;align-items:center;gap:12px;margin-bottom:1rem;flex-wrap:wrap;}
+.nav-btn{background:#fff;border:0.5px solid #c3c2b7;border-radius:8px;padding:6px 16px;font-size:13px;cursor:pointer;color:#0b0b0b;transition:background 0.15s;}
+.nav-btn:hover{background:#f1efe8;border-color:#888780;}
+.nav-btn.primary{background:#2a78d6;color:#fff;border-color:#2a78d6;}
+.nav-btn.primary:hover{background:#1f63b8;}
+.month-title{flex:1;text-align:center;}
+.month-title h1{font-size:18px;font-weight:600;}
+.month-title .sub{font-size:12px;color:#898781;margin-top:2px;}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem;}
+.card{background:#fff;border:0.5px solid #e1e0d9;border-radius:8px;padding:0.75rem 1rem;}
+.card .lbl{font-size:10px;color:#898781;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;}
+.card .val{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;}
+.card .val.danger{color:#a32d2d;}.card .val.success{color:#3b6d11;}.card .val.warn{color:#854f0b;}
+.card .sub2{font-size:11px;color:#898781;margin-top:3px;}
+.card input.bal-in{border:0.5px solid #c3c2b7;border-radius:6px;font-size:17px;font-weight:600;padding:4px 6px;width:100%;font-variant-numeric:tabular-nums;}
+.card input.bal-in:focus{border-color:#2a78d6;outline:none;}
+
+.legend{display:flex;gap:16px;font-size:11px;color:#898781;margin-bottom:0.75rem;flex-wrap:wrap;align-items:center;}
+.legend .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.dot.inc{background:#3b6d11;}.dot.exp{background:#a32d2d;}
+
+.cal-header{display:grid;grid-template-columns:repeat(7,1fr) 150px;gap:6px;margin-bottom:6px;}
+.cal-header div{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#898781;text-align:center;padding:4px 0;}
+.cal-header div.wk{text-align:left;padding-left:8px;}
+
+.week-row{display:grid;grid-template-columns:repeat(7,1fr) 150px;gap:6px;margin-bottom:6px;}
+
+.day-cell{background:#fff;border:0.5px solid #e1e0d9;border-radius:8px;padding:6px 7px;min-height:112px;display:flex;flex-direction:column;}
+.day-cell.pad{background:#f7f6f2;border-style:dashed;}
+.day-cell.today{border:1.5px solid #2a78d6;background:#f5f9ff;}
+.day-num{font-size:11px;font-weight:600;color:#52514e;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
+.day-num .dow-date{font-variant-numeric:tabular-nums;}
+.day-num .today-tag{font-size:9px;background:#2a78d6;color:#fff;border-radius:3px;padding:0px 4px;}
+.pad .day-num{color:#c3c2b7;}
+
+.entries{flex:1;overflow-y:auto;max-height:130px;}
+.entry-row{display:flex;align-items:center;gap:3px;margin-bottom:3px;}
+.type-tog{border:none;font-size:10px;font-weight:700;cursor:pointer;width:15px;height:15px;border-radius:3px;line-height:15px;text-align:center;flex:0 0 auto;padding:0;}
+.type-tog.expense{color:#a32d2d;background:#fcebeb;}
+.type-tog.income{color:#3b6d11;background:#eaf3de;}
+input.e-lbl{border:0.5px solid transparent;border-radius:3px;font-size:11px;font-weight:500;color:#0b0b0b;flex:1 1 auto;min-width:0;padding:1px 3px;background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+input.e-lbl:hover{border-color:#c3c2b7;}
+input.e-lbl:focus{border-color:#2a78d6;outline:none;background:#fff;}
+input.e-lbl::placeholder{color:#c3c2b7;font-weight:400;}
+input.e-amt{border:0.5px solid transparent;border-radius:3px;font-size:10.5px;width:44px;flex:0 0 auto;padding:1px 2px;text-align:right;font-variant-numeric:tabular-nums;background:transparent;color:#52514e;}
+input.e-amt:hover{border-color:#c3c2b7;}
+input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
+.e-del{border:none;background:none;color:#c3c2b7;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1;padding:0 1px;}
+.e-del:hover{color:#a32d2d;}
+
+.add-line{font-size:10px;color:#c3c2b7;background:none;border:none;cursor:pointer;text-align:left;padding:2px 0 0;}
+.add-line:hover{color:#2a78d6;}
+.pad .add-line{display:none;}
+
+.day-foot{font-size:10px;color:#898781;border-top:0.5px dashed #e1e0d9;margin-top:4px;padding-top:3px;display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
+.day-foot .bal{font-weight:600;}
+.day-foot .bal.neg{color:#a32d2d;}
+.day-foot .bal.pos{color:#3b6d11;}
+.pad .day-foot{visibility:hidden;}
+
+.week-summary{background:#f1efe8;border:0.5px solid #e1e0d9;border-radius:8px;padding:8px 10px;font-size:11px;display:flex;flex-direction:column;justify-content:center;gap:3px;}
+.week-summary .ws-row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
+.week-summary .ws-lbl{color:#898781;}
+.week-summary .ws-val.g{color:#3b6d11;}
+.week-summary .ws-val.r{color:#a32d2d;}
+.week-summary .ws-end{border-top:0.5px solid #c3c2b7;margin-top:3px;padding-top:3px;font-weight:600;}
+
+.footer-note{font-size:11px;color:#898781;text-align:center;margin-top:1.25rem;}
+.actions{display:flex;gap:8px;justify-content:center;margin-top:0.75rem;flex-wrap:wrap;}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .no-print{display:none !important;}
+  .wrap{max-width:100%;}
+  .day-cell{break-inside:avoid;}
+  .cards{margin-bottom:0.75rem;}
+  @page{size:landscape;margin:10mm;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top-nav no-print">
+    <button class="nav-btn" onclick="changeMonth(-1)">← prev</button>
+    <div class="month-title">
+      <h1 id="monthTitle"></h1>
+      <div class="sub" id="monthSub"></div>
+    </div>
+    <button class="nav-btn" onclick="changeMonth(1)">next →</button>
+    <button class="nav-btn primary" onclick="window.print()">🖨 Print</button>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="lbl">Starting Balance</div>
+      <input class="bal-in no-print-border" id="startBalInput" type="number" step="0.01" onchange="updateStartBalance(this.value)">
+      <div class="sub2">as of the 1st</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Income this month</div>
+      <div class="val success" id="cardIncome">$0.00</div>
+      <div class="sub2" id="cardIncomeCount">0 entries</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Expenses this month</div>
+      <div class="val danger" id="cardExpense">$0.00</div>
+      <div class="sub2" id="cardExpenseCount">0 entries</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Balance as of today</div>
+      <div class="val" id="cardToday">—</div>
+      <div class="sub2" id="cardTodaySub">not in this month</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Projected end-of-month</div>
+      <div class="val" id="cardProjected">$0.00</div>
+      <div class="sub2">starting balance + net</div>
+    </div>
+  </div>
+
+  <div class="legend no-print">
+    <span><span class="dot inc"></span>income (tap the − to flip to +)</span>
+    <span><span class="dot exp"></span>expense (default)</span>
+    <span>Click "+ add" in any day to add a bill, paycheck, or expense.</span>
+  </div>
+
+  <div class="cal-header">
+    <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+    <div class="wk">Week Summary</div>
+  </div>
+
+  <div id="calBody"></div>
+
+  <div class="actions no-print">
+    <button class="nav-btn" onclick="copyPreviousMonth()">↪ Copy last month's entries into this month</button>
+    <button class="nav-btn" onclick="clearMonth()">🗑 Clear this month</button>
+  </div>
+
+  <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed.</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'budgetCalendar_v1';
+
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {entries:{}, startingBalances:{}};
+}
+function saveStore(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+}
+
+let store = loadStore();
+const today = new Date();
+let viewYear = today.getFullYear();
+let viewMonth = today.getMonth(); // 0-indexed
+
+// ---- seed default July 2026 data on very first run ----
+function seedIfEmpty(){
+  if(Object.keys(store.entries).length > 0) return;
+  const seed = {
+    '2026-07-02':[{label:'Paycheck', amount:1581.00, type:'income'}],
+    '2026-07-03':[{label:'Rent', amount:1850.00, type:'expense'}],
+    '2026-07-04':[{label:'Navy Federal Credit', amount:250.00, type:'expense'}],
+    '2026-07-05':[{label:'EZ Pass', amount:110.00, type:'expense'}],
+    '2026-07-06':[{label:'Gas (car)', amount:72.50, type:'expense'}],
+    '2026-07-08':[
+      {label:'Affirm payment #1', amount:244.00, type:'expense'},
+      {label:'AT&T', amount:77.45, type:'expense'},
+      {label:'Amazon', amount:126.00, type:'expense'},
+      {label:'Gas bill (utility)', amount:49.00, type:'expense'}
+    ],
+    '2026-07-12':[{label:'Spotify', amount:13.77, type:'expense'}],
+    '2026-07-13':[{label:'Affirm payment #2', amount:66.36, type:'expense'}],
+    '2026-07-16':[{label:'Paycheck', amount:1581.00, type:'income'}],
+    '2026-07-17':[{label:'Car insurance', amount:87.47, type:'expense'}],
+    '2026-07-18':[{label:'Klarna', amount:24.25, type:'expense'}],
+    '2026-07-19':[{label:'Gas (car)', amount:72.50, type:'expense'}],
+    '2026-07-22':[{label:'Dropbox', amount:12.71, type:'expense'}],
+    '2026-07-23':[{label:'SoFi student loan', amount:179.58, type:'expense'}],
+    '2026-07-24':[{label:'Affirm payment #3', amount:66.36, type:'expense'}],
+    '2026-07-29':[
+      {label:'Comcast', amount:50.00, type:'expense'},
+      {label:'Car payment', amount:228.00, type:'expense'}
+    ],
+  };
+  Object.keys(seed).forEach(dateKey=>{
+    store.entries[dateKey] = seed[dateKey].map((e,i)=>({id:dateKey+'_'+i, ...e}));
+  });
+  store.startingBalances['2026-07'] = 0;
+  saveStore();
+}
+seedIfEmpty();
+
+// ---- helpers ----
+function pad2(n){return n<10?'0'+n:''+n;}
+function dateKey(y,m,d){return y+'-'+pad2(m+1)+'-'+pad2(d);}
+function monthKey(y,m){return y+'-'+pad2(m+1);}
+function fmt(n){return '$'+Math.abs(n||0).toFixed(2);}
+function fmtSigned(n){return (n<0?'-':'')+'$'+Math.abs(n||0).toFixed(2);}
+
+function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
+
+// Monday-first weekday index (0=Mon..6=Sun) for JS's 0=Sun..6=Sat
+function mondayIndex(jsDay){return jsDay===0?6:jsDay-1;}
+
+function buildGrid(y,m){
+  const numDays = daysInMonth(y,m);
+  const firstDow = mondayIndex(new Date(y,m,1).getDay());
+  const cells = [];
+  // leading padding from previous month
+  const prevMonthDays = daysInMonth(m===0?y-1:y, m===0?11:m-1);
+  for(let i=firstDow-1;i>=0;i--){
+    cells.push({y: m===0?y-1:y, m: m===0?11:m-1, d: prevMonthDays-i, inMonth:false});
+  }
+  for(let d=1; d<=numDays; d++){
+    cells.push({y,m,d,inMonth:true});
+  }
+  while(cells.length % 7 !== 0){
+    const last = cells[cells.length-1];
+    let ny=last.y, nm=last.m, nd=last.d+1;
+    if(nd > daysInMonth(ny,nm)){ nd=1; nm++; if(nm>11){nm=0;ny++;} }
+    cells.push({y:ny,m:nm,d:nd,inMonth:false});
+  }
+  const weeks = [];
+  for(let i=0;i<cells.length;i+=7) weeks.push(cells.slice(i,i+7));
+  return weeks;
+}
+
+function entriesFor(dk){
+  return store.entries[dk] || [];
+}
+function netFor(dk){
+  return entriesFor(dk).reduce((s,e)=> s + (e.type==='income' ? (e.amount||0) : -(e.amount||0)), 0);
+}
+
+function render(){
+  const mk = monthKey(viewYear, viewMonth);
+  const monthName = new Date(viewYear, viewMonth, 1).toLocaleString('en-US',{month:'long'});
+  document.getElementById('monthTitle').textContent = monthName + ' ' + viewYear;
+  document.getElementById('monthSub').textContent = 'Monday – Sunday view';
+
+  const startBal = store.startingBalances[mk] || 0;
+  document.getElementById('startBalInput').value = startBal;
+
+  const weeks = buildGrid(viewYear, viewMonth);
+  let running = startBal;
+  let totalIncome = 0, totalExpense = 0, incomeCount=0, expenseCount=0;
+  let todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
+  let balanceAsOfToday = null;
+  const isCurrentMonth = (viewYear===today.getFullYear() && viewMonth===today.getMonth());
+
+  let calHtml = '';
+  weeks.forEach(week=>{
+    calHtml += '<div class="week-row">';
+    let weekIncome=0, weekExpense=0, weekEndBal=null, weekHasInMonth=false;
+    week.forEach(cell=>{
+      const dk = dateKey(cell.y, cell.m, cell.d);
+      if(cell.inMonth){
+        weekHasInMonth = true;
+        const ents = entriesFor(dk);
+        const net = netFor(dk);
+        running += net;
+        ents.forEach(e=>{
+          if(e.type==='income'){totalIncome += (e.amount||0); incomeCount++; weekIncome += (e.amount||0);}
+          else {totalExpense += (e.amount||0); expenseCount++; weekExpense += (e.amount||0);}
+        });
+        weekEndBal = running;
+        if(dk===todayKey) balanceAsOfToday = running;
+
+        const isToday = dk===todayKey;
+        calHtml += `<div class="day-cell${isToday?' today':''}" data-key="${dk}">
+          <div class="day-num"><span class="dow-date">${cell.d}</span>${isToday?'<span class="today-tag">today</span>':''}</div>
+          <div class="entries">`;
+        ents.forEach(e=>{
+          const isIncome = e.type==='income';
+          calHtml += `<div class="entry-row">
+            <button class="type-tog ${isIncome?'income':'expense'} no-print" onclick="toggleType('${dk}','${e.id}')">${isIncome?'+':'−'}</button>
+            <input class="e-lbl" type="text" value="${escapeAttr(e.label)}" title="${escapeAttr(e.label)}" placeholder="label" onchange="updateLabel('${dk}','${e.id}',this.value)">
+            <input class="e-amt" type="number" step="0.01" value="${e.amount!==null&&e.amount!==undefined?e.amount:''}" placeholder="0.00" onchange="updateAmount('${dk}','${e.id}',this.value)">
+            <button class="e-del no-print" onclick="deleteEntry('${dk}','${e.id}')">×</button>
+          </div>`;
+        });
+        calHtml += `</div>
+          <button class="add-line no-print" onclick="addEntry('${dk}')">+ add</button>
+          <div class="day-foot"><span>net ${fmtSigned(net)}</span><span class="bal ${running<0?'neg':'pos'}">${fmtSigned(running)}</span></div>
+        </div>`;
+      } else {
+        calHtml += `<div class="day-cell pad" data-key="${dk}">
+          <div class="day-num"><span class="dow-date">${cell.d}</span></div>
+          <div class="entries"></div>
+          <div class="day-foot"><span></span><span></span></div>
+        </div>`;
+      }
+    });
+    calHtml += `<div class="week-summary">
+      <div class="ws-row"><span class="ws-lbl">Income</span><span class="ws-val g">${weekIncome>0?fmt(weekIncome):'—'}</span></div>
+      <div class="ws-row"><span class="ws-lbl">Expenses</span><span class="ws-val r">${weekExpense>0?fmt(weekExpense):'—'}</span></div>
+      <div class="ws-row ws-end"><span class="ws-lbl">Balance end of week</span><span>${weekHasInMonth&&weekEndBal!==null?fmtSigned(weekEndBal):'—'}</span></div>
+    </div>`;
+    calHtml += '</div>';
+  });
+
+  document.getElementById('calBody').innerHTML = calHtml;
+
+  document.getElementById('cardIncome').textContent = fmt(totalIncome);
+  document.getElementById('cardIncomeCount').textContent = incomeCount + ' entr' + (incomeCount===1?'y':'ies');
+  document.getElementById('cardExpense').textContent = fmt(totalExpense);
+  document.getElementById('cardExpenseCount').textContent = expenseCount + ' entr' + (expenseCount===1?'y':'ies');
+
+  const projected = startBal + totalIncome - totalExpense;
+  const projEl = document.getElementById('cardProjected');
+  projEl.textContent = fmtSigned(projected);
+  projEl.className = 'val ' + (projected<0?'danger':projected<100?'warn':'success');
+
+  const todayEl = document.getElementById('cardToday');
+  const todaySubEl = document.getElementById('cardTodaySub');
+  if(isCurrentMonth && balanceAsOfToday!==null){
+    todayEl.textContent = fmtSigned(balanceAsOfToday);
+    todayEl.className = 'val ' + (balanceAsOfToday<0?'danger':balanceAsOfToday<100?'warn':'success');
+    todaySubEl.textContent = 'through ' + today.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  } else {
+    todayEl.textContent = '—';
+    todayEl.className = 'val';
+    todaySubEl.textContent = 'not in this month';
+  }
+}
+
+function escapeAttr(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function changeMonth(dir){
+  viewMonth += dir;
+  if(viewMonth<0){viewMonth=11; viewYear--;}
+  if(viewMonth>11){viewMonth=0; viewYear++;}
+  render();
+}
+
+function updateStartBalance(v){
+  const mk = monthKey(viewYear, viewMonth);
+  store.startingBalances[mk] = parseFloat(v)||0;
+  saveStore();
+  render();
+}
+
+function addEntry(dk){
+  if(!store.entries[dk]) store.entries[dk] = [];
+  const id = dk + '_' + Date.now();
+  store.entries[dk].push({id, label:'', amount:null, type:'expense'});
+  saveStore();
+  render();
+}
+function deleteEntry(dk,id){
+  store.entries[dk] = (store.entries[dk]||[]).filter(e=>e.id!==id);
+  saveStore();
+  render();
+}
+function updateLabel(dk,id,v){
+  const e = (store.entries[dk]||[]).find(x=>x.id===id);
+  if(e){ e.label=v; saveStore(); }
+}
+function updateAmount(dk,id,v){
+  const e = (store.entries[dk]||[]).find(x=>x.id===id);
+  if(e){ e.amount = parseFloat(v)||null; saveStore(); render(); }
+}
+function toggleType(dk,id){
+  const e = (store.entries[dk]||[]).find(x=>x.id===id);
+  if(e){ e.type = e.type==='income'?'expense':'income'; saveStore(); render(); }
+}
+
+function clearMonth(){
+  if(!confirm('Clear all entries for this month? This cannot be undone.')) return;
+  const numDays = daysInMonth(viewYear, viewMonth);
+  for(let d=1; d<=numDays; d++){
+    delete store.entries[dateKey(viewYear, viewMonth, d)];
+  }
+  saveStore();
+  render();
+}
+
+function copyPreviousMonth(){
+  let py = viewYear, pm = viewMonth-1;
+  if(pm<0){pm=11; py--;}
+  const prevDays = daysInMonth(py,pm);
+  const curDays = daysInMonth(viewYear, viewMonth);
+  let copied = 0;
+  for(let d=1; d<=prevDays; d++){
+    const srcKey = dateKey(py,pm,d);
+    const src = store.entries[srcKey];
+    if(src && src.length){
+      const targetDay = Math.min(d, curDays);
+      const destKey = dateKey(viewYear, viewMonth, targetDay);
+      if(!store.entries[destKey]) store.entries[destKey] = [];
+      src.forEach((e,i)=>{
+        store.entries[destKey].push({id: destKey+'_copy_'+d+'_'+i+'_'+Date.now(), label:e.label, amount:e.amount, type:e.type});
+      });
+      copied++;
+    }
+  }
+  saveStore();
+  render();
+  alert(copied ? ('Copied entries from '+copied+' day(s) of last month. Adjust dates/amounts as needed.') : 'No entries found in last month to copy.');
+}
+
+render();
+</script>
+</body>
+</html>
