@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Budget Calendar · Month View</title>
+<title>Budget Master · Month View</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,sans-serif;background:#f4f3ee;color:#0b0b0b;padding:1.5rem;}
@@ -64,15 +64,28 @@ input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
 .add-line:hover{color:#2a78d6;}
 .pad .add-line{display:none;}
 
-.day-foot{font-size:10px;color:#898781;border-top:0.5px dashed #e1e0d9;margin-top:4px;padding-top:3px;display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
+.day-foot{font-size:10px;color:#898781;border-top:0.5px dashed #e1e0d9;margin-top:2px;padding-top:3px;display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
 .day-foot .bal{font-weight:600;}
 .day-foot .bal.neg{color:#a32d2d;}
 .day-foot .bal.pos{color:#3b6d11;}
 .pad .day-foot{visibility:hidden;}
 
+.day-start-row{font-size:9.5px;color:#c3c2b7;border-top:0.5px dashed #e1e0d9;margin-top:4px;padding-top:3px;display:flex;justify-content:space-between;align-items:center;gap:3px;}
+.day-start-row.has-override{color:#854f0b;}
+.day-start-row span:first-child{flex-shrink:0;text-transform:uppercase;letter-spacing:0.03em;}
+input.start-in{border:0.5px solid transparent;border-radius:3px;font-size:9.5px;width:56px;text-align:right;padding:0 2px;background:transparent;font-variant-numeric:tabular-nums;color:#52514e;}
+input.start-in::placeholder{color:#c3c2b7;}
+input.start-in:hover{border-color:#c3c2b7;}
+input.start-in:focus{border-color:#2a78d6;outline:none;background:#fff;}
+input.start-in.overridden{color:#854f0b;font-weight:700;}
+.reset-ov{border:none;background:none;color:#c3c2b7;font-size:11px;cursor:pointer;flex-shrink:0;line-height:1;padding:0;}
+.reset-ov:hover{color:#2a78d6;}
+.pad .day-start-row{visibility:hidden;}
+
 .week-summary{background:#f1efe8;border:0.5px solid #e1e0d9;border-radius:8px;padding:8px 10px;font-size:11px;display:flex;flex-direction:column;justify-content:center;gap:3px;}
 .week-summary .ws-row{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
 .week-summary .ws-lbl{color:#898781;}
+.week-summary .ws-start{font-weight:600;border-bottom:0.5px dashed #c3c2b7;padding-bottom:4px;margin-bottom:1px;}
 .week-summary .ws-val.g{color:#3b6d11;}
 .week-summary .ws-val.r{color:#a32d2d;}
 .week-summary .ws-end{border-top:0.5px solid #c3c2b7;margin-top:3px;padding-top:3px;font-weight:600;}
@@ -135,6 +148,7 @@ input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
     <span><span class="dot inc"></span>income (tap the − to flip to +)</span>
     <span><span class="dot exp"></span>expense (default)</span>
     <span>Click "+ add" in any day to add a bill, paycheck, or expense.</span>
+    <span>Each day has a "start" field — type your real balance there to correct the projection from that day forward.</span>
   </div>
 
   <div class="cal-header">
@@ -150,6 +164,7 @@ input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
   </div>
 
   <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed.</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v6 — editable per-day starting balance</div>
 </div>
 
 <script>
@@ -160,13 +175,14 @@ function loadStore(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return {entries:{}, startingBalances:{}};
+  return {entries:{}, startingBalances:{}, balanceOverrides:{}};
 }
 function saveStore(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
 }
 
 let store = loadStore();
+if(!store.balanceOverrides) store.balanceOverrides = {};
 const today = new Date();
 let viewYear = today.getFullYear();
 let viewMonth = today.getMonth(); // 0-indexed
@@ -214,6 +230,7 @@ function dateKey(y,m,d){return y+'-'+pad2(m+1)+'-'+pad2(d);}
 function monthKey(y,m){return y+'-'+pad2(m+1);}
 function fmt(n){return '$'+Math.abs(n||0).toFixed(2);}
 function fmtSigned(n){return (n<0?'-':'')+'$'+Math.abs(n||0).toFixed(2);}
+function shortDateLabel(y,m,d){return new Date(y,m,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 
 function daysInMonth(y,m){return new Date(y,m+1,0).getDate();}
 
@@ -270,13 +287,20 @@ function render(){
   weeks.forEach(week=>{
     calHtml += '<div class="week-row">';
     let weekIncome=0, weekExpense=0, weekEndBal=null, weekHasInMonth=false;
+    const weekStartBalance = running;
+    const monCell = week[0];
+    const monLabel = 'Mon ' + shortDateLabel(monCell.y, monCell.m, monCell.d);
     week.forEach(cell=>{
       const dk = dateKey(cell.y, cell.m, cell.d);
       if(cell.inMonth){
         weekHasInMonth = true;
         const ents = entriesFor(dk);
         const net = netFor(dk);
-        running += net;
+        const dayStartComputed = running;
+        const override = store.balanceOverrides[dk];
+        const hasOverride = (override!==undefined && override!==null && override!=='');
+        const actualStart = hasOverride ? parseFloat(override) : dayStartComputed;
+        running = actualStart + net;
         ents.forEach(e=>{
           if(e.type==='income'){totalIncome += (e.amount||0); incomeCount++; weekIncome += (e.amount||0);}
           else {totalExpense += (e.amount||0); expenseCount++; weekExpense += (e.amount||0);}
@@ -299,17 +323,24 @@ function render(){
         });
         calHtml += `</div>
           <button class="add-line no-print" onclick="addEntry('${dk}')">+ add</button>
+          <div class="day-start-row${hasOverride?' has-override':''}">
+            <span>start</span>
+            <input class="start-in${hasOverride?' overridden':''}" type="number" step="0.01" value="${hasOverride?override:''}" placeholder="${dayStartComputed.toFixed(2)}" title="Type your actual balance at the start of this day to re-anchor everything after it" onchange="setDayStart('${dk}',this.value)">
+            ${hasOverride?`<button class="reset-ov no-print" title="Clear override, go back to computed" onclick="clearDayStart('${dk}')">↺</button>`:''}
+          </div>
           <div class="day-foot"><span>net ${fmtSigned(net)}</span><span class="bal ${running<0?'neg':'pos'}">${fmtSigned(running)}</span></div>
         </div>`;
       } else {
         calHtml += `<div class="day-cell pad" data-key="${dk}">
           <div class="day-num"><span class="dow-date">${cell.d}</span></div>
           <div class="entries"></div>
+          <div class="day-start-row"><span></span><span></span></div>
           <div class="day-foot"><span></span><span></span></div>
         </div>`;
       }
     });
     calHtml += `<div class="week-summary">
+      <div class="ws-row ws-start"><span class="ws-lbl">Start bal. (${monLabel})</span><span>${fmtSigned(weekStartBalance)}</span></div>
       <div class="ws-row"><span class="ws-lbl">Income</span><span class="ws-val g">${weekIncome>0?fmt(weekIncome):'—'}</span></div>
       <div class="ws-row"><span class="ws-lbl">Expenses</span><span class="ws-val r">${weekExpense>0?fmt(weekExpense):'—'}</span></div>
       <div class="ws-row ws-end"><span class="ws-lbl">Balance end of week</span><span>${weekHasInMonth&&weekEndBal!==null?fmtSigned(weekEndBal):'—'}</span></div>
@@ -383,6 +414,21 @@ function updateAmount(dk,id,v){
 function toggleType(dk,id){
   const e = (store.entries[dk]||[]).find(x=>x.id===id);
   if(e){ e.type = e.type==='income'?'expense':'income'; saveStore(); render(); }
+}
+
+function setDayStart(dk, v){
+  if(v===''||v===null||v===undefined){
+    delete store.balanceOverrides[dk];
+  } else {
+    store.balanceOverrides[dk] = parseFloat(v);
+  }
+  saveStore();
+  render();
+}
+function clearDayStart(dk){
+  delete store.balanceOverrides[dk];
+  saveStore();
+  render();
 }
 
 function clearMonth(){
