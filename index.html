@@ -14,9 +14,26 @@ body{font-family:system-ui,sans-serif;background:#f4f3ee;color:#0b0b0b;padding:1
 .nav-btn:hover{background:#f1efe8;border-color:#888780;}
 .nav-btn.primary{background:#2a78d6;color:#fff;border-color:#2a78d6;}
 .nav-btn.primary:hover{background:#1f63b8;}
+.nav-btn.sync-btn{background:#3b6d11;color:#fff;border-color:#3b6d11;}
+.nav-btn.sync-btn:hover{background:#2d5309;}
 .month-title{flex:1;text-align:center;}
 .month-title h1{font-size:18px;font-weight:600;}
 .month-title .sub{font-size:12px;color:#898781;margin-top:2px;}
+
+.search-bar{position:relative;margin-bottom:1rem;}
+.search-bar input{width:100%;border:0.5px solid #c3c2b7;border-radius:8px;padding:8px 12px;font-size:13px;background:#fff;color:#0b0b0b;}
+.search-bar input:focus{outline:none;border-color:#2a78d6;}
+.search-results{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:0.5px solid #c3c2b7;border-radius:8px;max-height:260px;overflow-y:auto;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.search-results.open{display:block;}
+.sr-item{display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:12.5px;cursor:pointer;border-bottom:0.5px solid #ecebe5;}
+.sr-item:last-child{border-bottom:none;}
+.sr-item:hover{background:#f1efe8;}
+.sr-item span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+.sr-date{color:#898781;font-size:11px;flex-shrink:0;}
+.sr-amt{font-variant-numeric:tabular-nums;flex-shrink:0;font-weight:600;}
+.sr-amt.income{color:#3b6d11;}
+.sr-amt.expense{color:#a32d2d;}
+.sr-empty{padding:10px 12px;font-size:12.5px;color:#898781;}
 
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.25rem;}
 .card{background:#fff;border:0.5px solid #e1e0d9;border-radius:8px;padding:0.75rem 1rem;}
@@ -36,10 +53,28 @@ body{font-family:system-ui,sans-serif;background:#f4f3ee;color:#0b0b0b;padding:1
 .cal-header div.wk{text-align:left;padding-left:8px;}
 
 .week-row{display:grid;grid-template-columns:repeat(7,1fr) 150px;gap:6px;margin-bottom:6px;}
+.week-row.current-week{position:relative;outline:2.5px solid #2a78d6;outline-offset:4px;border-radius:10px;margin-top:10px;}
+.week-row.current-week::before{
+  content:"THIS WEEK";
+  position:absolute;
+  top:-11px;left:8px;
+  background:#2a78d6;
+  color:#fff;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:0.05em;
+  padding:1px 7px;
+  border-radius:4px;
+}
 
 .day-cell{background:#fff;border:0.5px solid #e1e0d9;border-radius:8px;padding:6px 7px;min-height:112px;display:flex;flex-direction:column;}
 .day-cell.pad{background:#f7f6f2;border-style:dashed;}
 .day-cell.today{border:1.5px solid #2a78d6;background:#f5f9ff;}
+.day-cell.flash{animation:flashHighlight 1.8s ease;}
+@keyframes flashHighlight{
+  0%{box-shadow:0 0 0 4px rgba(42,120,214,0.55);}
+  100%{box-shadow:0 0 0 0 rgba(42,120,214,0);}
+}
 .day-num{font-size:11px;font-weight:600;color:#52514e;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
 .day-num .dow-date{font-variant-numeric:tabular-nums;}
 .day-num .today-tag{font-size:9px;background:#2a78d6;color:#fff;border-radius:3px;padding:0px 4px;}
@@ -116,6 +151,11 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
     <button class="nav-btn primary" onclick="window.print()">🖨 Print</button>
   </div>
 
+  <div class="search-bar no-print">
+    <input type="text" id="searchInput" placeholder="🔍 Search bills / entries by name..." oninput="doSearch(this.value)" onfocus="doSearch(this.value)">
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
   <div class="cards">
     <div class="card">
       <div class="lbl">Starting Balance</div>
@@ -161,10 +201,13 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
   <div class="actions no-print">
     <button class="nav-btn" onclick="copyPreviousMonth()">↪ Copy last month's entries into this month</button>
     <button class="nav-btn" onclick="clearMonth()">🗑 Clear this month</button>
+    <button class="nav-btn sync-btn" onclick="saveToFile()">💾 Save to File</button>
+    <button class="nav-btn sync-btn" onclick="document.getElementById('loadFileInput').click()">📂 Load from File</button>
+    <input type="file" id="loadFileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
   </div>
 
-  <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed.</div>
-  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v6 — editable per-day starting balance</div>
+  <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed. Use "Save to File" / "Load from File" to move your budget between devices.</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v7 — search, save/load to file, current-week highlight</div>
 </div>
 
 <script>
@@ -285,7 +328,8 @@ function render(){
 
   let calHtml = '';
   weeks.forEach(week=>{
-    calHtml += '<div class="week-row">';
+    const weekHasToday = isCurrentMonth && week.some(cell=>cell.inMonth && dateKey(cell.y,cell.m,cell.d)===todayKey);
+    calHtml += '<div class="week-row'+(weekHasToday?' current-week':'')+'">';
     let weekIncome=0, weekExpense=0, weekEndBal=null, weekHasInMonth=false;
     const weekStartBalance = running;
     const monCell = week[0];
@@ -375,6 +419,84 @@ function render(){
 
 function escapeAttr(s){
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function doSearch(q){
+  const resultsEl = document.getElementById('searchResults');
+  q = (q||'').trim().toLowerCase();
+  if(!q){ resultsEl.innerHTML=''; resultsEl.classList.remove('open'); return; }
+  const matches = [];
+  Object.keys(store.entries).sort().forEach(dk=>{
+    (store.entries[dk]||[]).forEach(e=>{
+      if((e.label||'').toLowerCase().includes(q)){
+        matches.push({dk, label:e.label, amount:e.amount, type:e.type});
+      }
+    });
+  });
+  if(!matches.length){
+    resultsEl.innerHTML = '<div class="sr-empty">No matches found.</div>';
+  } else {
+    resultsEl.innerHTML = matches.slice(0,40).map(m=>{
+      const parts = m.dk.split('-').map(Number);
+      const dateLabel = new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const amt = (m.amount!==null && m.amount!==undefined) ? (m.type==='income'?'+':'-')+'$'+Math.abs(m.amount).toFixed(2) : '';
+      return '<div class="sr-item" onclick="jumpToEntry(\''+m.dk+'\')"><span>'+(escapeAttr(m.label)||'(no label)')+'</span><span class="sr-date">'+dateLabel+'</span><span class="sr-amt '+m.type+'">'+amt+'</span></div>';
+    }).join('');
+  }
+  resultsEl.classList.add('open');
+}
+function jumpToEntry(dk){
+  const parts = dk.split('-').map(Number);
+  viewYear = parts[0];
+  viewMonth = parts[1]-1;
+  render();
+  document.getElementById('searchResults').classList.remove('open');
+  document.getElementById('searchInput').value='';
+  setTimeout(()=>{
+    const cell = document.querySelector('.day-cell[data-key="'+dk+'"]');
+    if(cell){
+      cell.scrollIntoView({behavior:'smooth', block:'center'});
+      cell.classList.add('flash');
+      setTimeout(()=>cell.classList.remove('flash'), 1800);
+    }
+  }, 60);
+}
+document.addEventListener('click', e=>{
+  const bar = document.querySelector('.search-bar');
+  if(bar && !bar.contains(e.target)){
+    document.getElementById('searchResults').classList.remove('open');
+  }
+});
+
+function saveToFile(){
+  const blob = new Blob([JSON.stringify(store, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'budget-master_' + monthKey(viewYear, viewMonth) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function loadFromFile(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data;
+    try{ data = JSON.parse(reader.result); }
+    catch(e){ alert("That file doesn't look like a valid Budget Master save file."); event.target.value=''; return; }
+    if(!data || typeof data.entries !== 'object'){ alert('No budget data found in that file.'); event.target.value=''; return; }
+    store = data;
+    if(!store.startingBalances) store.startingBalances = {};
+    if(!store.balanceOverrides) store.balanceOverrides = {};
+    saveStore();
+    alert('Loaded! The page will refresh to show your synced data.');
+    location.reload();
+  };
+  reader.onerror = () => alert('Could not read that file.');
+  reader.readAsText(file);
 }
 
 function changeMonth(dir){
