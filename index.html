@@ -92,6 +92,9 @@ input.e-lbl::placeholder{color:#c3c2b7;font-weight:400;}
 input.e-amt{border:0.5px solid transparent;border-radius:3px;font-size:10.5px;width:44px;flex:0 0 auto;padding:1px 2px;text-align:right;font-variant-numeric:tabular-nums;background:transparent;color:#52514e;}
 input.e-amt:hover{border-color:#c3c2b7;}
 input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
+select.e-cat{border:0.5px solid transparent;border-radius:3px;font-size:8.5px;width:50px;flex:0 0 auto;padding:1px 0;background:transparent;color:#52514e;max-width:50px;}
+select.e-cat:hover{border-color:#c3c2b7;}
+select.e-cat:focus{border-color:#2a78d6;outline:none;background:#fff;}
 .e-del{border:none;background:none;color:#c3c2b7;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1;padding:0 1px;}
 .e-del:hover{color:#a32d2d;}
 
@@ -125,8 +128,63 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
 .week-summary .ws-val.r{color:#a32d2d;}
 .week-summary .ws-end{border-top:0.5px solid #c3c2b7;margin-top:3px;padding-top:3px;font-weight:600;}
 
+/* ---------- Week ownership (Daniel / Lex) ---------- */
+.ws-owner-row{display:flex;gap:4px;margin-bottom:2px;}
+.ws-owner-btn{flex:1;border:1px solid #c3c2b7;background:#fff;border-radius:5px;font-size:9.5px;font-weight:700;padding:3px 2px;cursor:pointer;color:#52514e;letter-spacing:0.02em;}
+.ws-owner-btn:hover{border-color:#888780;}
+.ws-owner-btn.daniel.active{background:#14532d;border-color:#0d3b20;color:#fff;}
+.ws-owner-btn.lex.active{background:#c2410c;border-color:#9a3412;color:#fff;}
+.ws-owner-tag{font-size:10px;font-weight:700;letter-spacing:0.02em;min-height:13px;}
+.ws-owner-tag.daniel{color:#14532d;}
+.ws-owner-tag.lex{color:#c2410c;}
+
+.week-row.owner-daniel{border-radius:10px;}
+.week-row.owner-daniel .day-cell:not(.pad){background:#eaf3ec;border-color:#8fbf9f;}
+.week-row.owner-daniel .day-cell.today{border-color:#14532d;background:#e2f0e6;}
+.week-row.owner-daniel .week-summary{background:#14532d;border-color:#0d3b20;}
+.week-row.owner-daniel .week-summary .ws-lbl{color:#bcd9c5;}
+.week-row.owner-daniel .week-summary .ws-start,
+.week-row.owner-daniel .week-summary .ws-end{color:#fff;border-color:rgba(255,255,255,0.35);}
+.week-row.owner-daniel .week-summary .ws-row:not(.ws-start):not(.ws-end)>span:last-child:not(.ws-val){color:#fff;}
+.week-row.owner-daniel .week-summary .ws-val.g{color:#8fe3ab;}
+.week-row.owner-daniel .week-summary .ws-val.r{color:#ffb4a8;}
+.week-row.owner-daniel .day-start-row{border-color:#8fbf9f;}
+.week-row.owner-daniel .day-foot{border-color:#8fbf9f;}
+
+.week-row.owner-lex{border-radius:10px;}
+.week-row.owner-lex .day-cell:not(.pad){background:#fdf0e4;border-color:#e2a06b;}
+.week-row.owner-lex .day-cell.today{border-color:#c2410c;background:#fbe6d4;}
+.week-row.owner-lex .week-summary{background:#c2410c;border-color:#9a3412;}
+.week-row.owner-lex .week-summary .ws-lbl{color:#ffd9b8;}
+.week-row.owner-lex .week-summary .ws-start,
+.week-row.owner-lex .week-summary .ws-end{color:#fff;border-color:rgba(255,255,255,0.35);}
+.week-row.owner-lex .week-summary .ws-val.g{color:#c8f5cf;}
+.week-row.owner-lex .week-summary .ws-val.r{color:#ffd6cc;}
+.week-row.owner-lex .day-start-row{border-color:#e2a06b;}
+.week-row.owner-lex .day-foot{border-color:#e2a06b;}
+.week-row.owner-daniel .ws-owner-tag,
+.week-row.owner-lex .ws-owner-tag{color:#fff;}
+
 .footer-note{font-size:11px;color:#898781;text-align:center;margin-top:1.25rem;}
 .actions{display:flex;gap:8px;justify-content:center;margin-top:0.75rem;flex-wrap:wrap;}
+
+/* ---------- Category Totals modal ---------- */
+.cat-overlay{display:none;position:fixed;inset:0;background:rgba(11,11,11,0.45);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.cat-overlay.open{display:flex;}
+.cat-modal{background:#fff;border-radius:12px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,0.28);}
+.cat-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:700;font-size:14px;}
+.cat-modal-head button{border:none;background:#f1efe8;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;color:#52514e;}
+.cat-scope-row{display:flex;gap:6px;margin-bottom:12px;}
+.cat-scope-btn{flex:1;border:0.5px solid #c3c2b7;background:#fff;border-radius:6px;padding:5px;font-size:11.5px;cursor:pointer;color:#52514e;}
+.cat-scope-btn.active{background:#2a78d6;color:#fff;border-color:#2a78d6;}
+.cat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid #ecebe5;font-size:13px;}
+.cat-row:last-child{border-bottom:none;}
+.cat-name{font-weight:600;}
+.cat-count{font-size:10.5px;color:#898781;margin-left:5px;font-weight:400;}
+.cat-amt{font-variant-numeric:tabular-nums;font-weight:600;}
+.cat-amt.exp{color:#a32d2d;}
+.cat-amt.inc{color:#3b6d11;margin-left:6px;}
+.cat-empty{color:#898781;font-size:13px;padding:6px 0;}
 
 @media print{
   body{background:#fff;padding:0;}
@@ -189,6 +247,7 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
     <span><span class="dot exp"></span>expense (default)</span>
     <span>Click "+ add" in any day to add a bill, paycheck, or expense.</span>
     <span>Each day has a "start" field — type your real balance there to correct the projection from that day forward.</span>
+    <span>Tag a week 🟢 Daniel or 🟠 Lex in its summary panel — on Daniel's weeks, Tuesday daycare ($214) is added automatically.</span>
   </div>
 
   <div class="cal-header">
@@ -201,13 +260,28 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
   <div class="actions no-print">
     <button class="nav-btn" onclick="copyPreviousMonth()">↪ Copy last month's entries into this month</button>
     <button class="nav-btn" onclick="clearMonth()">🗑 Clear this month</button>
+    <button class="nav-btn" onclick="showCategoryTotals()">📊 Category Totals</button>
     <button class="nav-btn sync-btn" onclick="saveToFile()">💾 Save to File</button>
     <button class="nav-btn sync-btn" onclick="document.getElementById('loadFileInput').click()">📂 Load from File</button>
     <input type="file" id="loadFileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
   </div>
 
+  <div class="cat-overlay" id="categoryTotalsOverlay" onclick="if(event.target===this)document.getElementById('categoryTotalsOverlay').classList.remove('open');">
+    <div class="cat-modal">
+      <div class="cat-modal-head">
+        <span>📊 Category Totals</span>
+        <button onclick="document.getElementById('categoryTotalsOverlay').classList.remove('open');">✕</button>
+      </div>
+      <div class="cat-scope-row">
+        <button type="button" class="cat-scope-btn" data-scope="month" onclick="showCategoryTotals('month')">This month</button>
+        <button type="button" class="cat-scope-btn" data-scope="all" onclick="showCategoryTotals('all')">All time</button>
+      </div>
+      <div id="categoryTotalsBody"></div>
+    </div>
+  </div>
+
   <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed. Use "Save to File" / "Load from File" to move your budget between devices.</div>
-  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v7 — search, save/load to file, current-week highlight</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v9 — per-entry categories + Category Totals</div>
 </div>
 
 <script>
@@ -218,7 +292,7 @@ function loadStore(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  return {entries:{}, startingBalances:{}, balanceOverrides:{}};
+  return {entries:{}, startingBalances:{}, balanceOverrides:{}, weekOwners:{}};
 }
 function saveStore(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
@@ -226,9 +300,134 @@ function saveStore(){
 
 let store = loadStore();
 if(!store.balanceOverrides) store.balanceOverrides = {};
+if(!store.weekOwners) store.weekOwners = {};
 const today = new Date();
 let viewYear = today.getFullYear();
 let viewMonth = today.getMonth(); // 0-indexed
+
+// ---- categories ----
+const CATEGORIES = [
+  {v:'affirm', short:'Affirm', full:'Affirm'},
+  {v:'gasoline', short:'Gas', full:'Gasoline'},
+  {v:'paypal', short:'PayPal', full:'PayPal'},
+  {v:'sofi', short:'SoFi', full:'SoFi Student Loan'},
+  {v:'rent', short:'Rent', full:'Rent'},
+  {v:'car_payment', short:'Car Pmt', full:'Car Payment'},
+  {v:'car_insurance', short:'Car Ins', full:'Car Insurance'},
+  {v:'electric', short:'Electric', full:'Electric'},
+  {v:'gas_utility', short:'Gas (util)', full:'Utility Gas'},
+  {v:'comcast', short:'Comcast', full:'Comcast Internet'},
+  {v:'att', short:'AT&T', full:'AT&T'},
+  {v:'payday', short:'Pay Day', full:'Pay Day'},
+  {v:'savings_transfer', short:'Savings', full:'Savings Account Transfer'},
+  {v:'daycare', short:'Daycare', full:'Daycare'},
+  {v:'klarna', short:'Klarna', full:'Klarna'},
+  {v:'amazon_cc', short:'Amazon CC', full:'Amazon Credit Card'},
+  {v:'spotify', short:'Spotify', full:'Spotify'},
+  {v:'lowes', short:'Lowes', full:'Lowes'},
+  {v:'groceries', short:'Groceries', full:'Groceries'},
+  {v:'random', short:'Random', full:'Random'}
+];
+function categoryOptionsHtml(selected){
+  let html = '<option value=""'+(!selected?' selected':'')+'>— cat —</option>';
+  CATEGORIES.forEach(c=>{
+    html += '<option value="'+c.v+'"'+(selected===c.v?' selected':'')+'>'+c.short+'</option>';
+  });
+  return html;
+}
+function updateCategory(dk,id,v){
+  const e = (store.entries[dk]||[]).find(x=>x.id===id);
+  if(!e) return;
+  e.category = v;
+  // if there's no typed label yet, fill it with the full category name so
+  // it still reads clearly in print / the entry list, not just the dropdown
+  if(v && (!e.label || !e.label.trim())){
+    const cat = CATEGORIES.find(c=>c.v===v);
+    if(cat) e.label = cat.full;
+  }
+  saveStore();
+  render();
+}
+let categoryTotalsScope = 'all';
+function computeCategoryTotals(scope){
+  const totals = {};
+  CATEGORIES.forEach(c=>{ totals[c.v] = {expense:0, income:0, count:0}; });
+  totals['__none__'] = {expense:0, income:0, count:0};
+  const mk = monthKey(viewYear, viewMonth);
+  Object.keys(store.entries).forEach(dk=>{
+    if(scope==='month' && dk.slice(0,7)!==mk) return;
+    (store.entries[dk]||[]).forEach(e=>{
+      if(e.amount===null || e.amount===undefined) return;
+      const key = (e.category && totals[e.category]) ? e.category : '__none__';
+      if(e.type==='income') totals[key].income += e.amount;
+      else totals[key].expense += e.amount;
+      totals[key].count++;
+    });
+  });
+  return totals;
+}
+function showCategoryTotals(scope){
+  categoryTotalsScope = scope || categoryTotalsScope || 'all';
+  const totals = computeCategoryTotals(categoryTotalsScope);
+  const body = document.getElementById('categoryTotalsBody');
+  let rows = CATEGORIES.map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
+  rows.push({v:'__none__', l:'Uncategorized', ...totals['__none__']});
+  rows = rows.filter(r=>r.expense>0 || r.income>0);
+  rows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
+  if(!rows.length){
+    body.innerHTML = '<div class="cat-empty">No categorized entries yet'+(categoryTotalsScope==='month'?' this month':'')+'. Pick a category from the small dropdown on any entry and it\'ll show up here.</div>';
+  } else {
+    body.innerHTML = rows.map(r=>{
+      let amtHtml = '';
+      if(r.expense>0) amtHtml += '<span class="cat-amt exp">-'+fmt(r.expense)+'</span>';
+      if(r.income>0) amtHtml += '<span class="cat-amt inc">+'+fmt(r.income)+'</span>';
+      return '<div class="cat-row"><span class="cat-name">'+r.l+'<span class="cat-count">('+r.count+')</span></span><span>'+amtHtml+'</span></div>';
+    }).join('');
+  }
+  document.querySelectorAll('.cat-scope-btn').forEach(b=>b.classList.toggle('active', b.dataset.scope===categoryTotalsScope));
+  document.getElementById('categoryTotalsOverlay').classList.add('open');
+}
+
+// ---- week ownership (Daniel / Lex) + auto Tuesday daycare ----
+const DAYCARE_AMOUNT = 214.00;
+const DAYCARE_LABEL = 'Daycare';
+function weekMonKey(week){
+  const mon = week[0];
+  return dateKey(mon.y, mon.m, mon.d);
+}
+function ensureDaycareForWeek(week){
+  const monDk = weekMonKey(week);
+  const owner = store.weekOwners[monDk];
+  const tueCell = week[1]; // Mon-first grid: index 1 = Tuesday
+  const tueDk = dateKey(tueCell.y, tueCell.m, tueCell.d);
+  const autoId = tueDk + '_daycare_auto';
+  if(!store.entries[tueDk]) store.entries[tueDk] = [];
+  const idx = store.entries[tueDk].findIndex(e=>e.id===autoId);
+  let changed = false;
+  if(owner==='daniel'){
+    if(idx===-1){
+      store.entries[tueDk].push({id:autoId, label:DAYCARE_LABEL, amount:DAYCARE_AMOUNT, type:'expense', category:'daycare'});
+      changed = true;
+    }
+  } else {
+    // Lex's weeks (or unassigned) never get the auto daycare charge —
+    // keeps it out of the shared cash-flow numbers while things stay separate.
+    if(idx>-1){
+      store.entries[tueDk].splice(idx,1);
+      changed = true;
+    }
+  }
+  return changed;
+}
+function setWeekOwner(monDk, owner){
+  if(store.weekOwners[monDk]===owner){
+    delete store.weekOwners[monDk]; // click active owner again to clear
+  } else {
+    store.weekOwners[monDk] = owner;
+  }
+  saveStore();
+  render();
+}
 
 // ---- seed default July 2026 data on very first run ----
 function seedIfEmpty(){
@@ -329,7 +528,10 @@ function render(){
   let calHtml = '';
   weeks.forEach(week=>{
     const weekHasToday = isCurrentMonth && week.some(cell=>cell.inMonth && dateKey(cell.y,cell.m,cell.d)===todayKey);
-    calHtml += '<div class="week-row'+(weekHasToday?' current-week':'')+'">';
+    const monDk = weekMonKey(week);
+    if(ensureDaycareForWeek(week)) saveStore();
+    const owner = store.weekOwners[monDk];
+    calHtml += '<div class="week-row'+(weekHasToday?' current-week':'')+(owner?' owner-'+owner:'')+'">';
     let weekIncome=0, weekExpense=0, weekEndBal=null, weekHasInMonth=false;
     const weekStartBalance = running;
     const monCell = week[0];
@@ -360,6 +562,7 @@ function render(){
           const isIncome = e.type==='income';
           calHtml += `<div class="entry-row">
             <button class="type-tog ${isIncome?'income':'expense'} no-print" onclick="toggleType('${dk}','${e.id}')">${isIncome?'+':'−'}</button>
+            <select class="e-cat no-print" onchange="updateCategory('${dk}','${e.id}',this.value)">${categoryOptionsHtml(e.category||'')}</select>
             <input class="e-lbl" type="text" value="${escapeAttr(e.label)}" title="${escapeAttr(e.label)}" placeholder="label" onchange="updateLabel('${dk}','${e.id}',this.value)">
             <input class="e-amt" type="number" step="0.01" value="${e.amount!==null&&e.amount!==undefined?e.amount:''}" placeholder="0.00" onchange="updateAmount('${dk}','${e.id}',this.value)">
             <button class="e-del no-print" onclick="deleteEntry('${dk}','${e.id}')">×</button>
@@ -384,6 +587,11 @@ function render(){
       }
     });
     calHtml += `<div class="week-summary">
+      <div class="ws-owner-row no-print">
+        <button type="button" class="ws-owner-btn daniel${owner==='daniel'?' active':''}" onclick="setWeekOwner('${monDk}','daniel')">🟢 Daniel</button>
+        <button type="button" class="ws-owner-btn lex${owner==='lex'?' active':''}" onclick="setWeekOwner('${monDk}','lex')">🟠 Lex</button>
+      </div>
+      ${owner?`<div class="ws-owner-tag ${owner}">${owner==='daniel'?"🟢 Daniel's week":"🟠 Lex's week"}</div>`:''}
       <div class="ws-row ws-start"><span class="ws-lbl">Start bal. (${monLabel})</span><span>${fmtSigned(weekStartBalance)}</span></div>
       <div class="ws-row"><span class="ws-lbl">Income</span><span class="ws-val g">${weekIncome>0?fmt(weekIncome):'—'}</span></div>
       <div class="ws-row"><span class="ws-lbl">Expenses</span><span class="ws-val r">${weekExpense>0?fmt(weekExpense):'—'}</span></div>
@@ -491,6 +699,7 @@ function loadFromFile(event){
     store = data;
     if(!store.startingBalances) store.startingBalances = {};
     if(!store.balanceOverrides) store.balanceOverrides = {};
+    if(!store.weekOwners) store.weekOwners = {};
     saveStore();
     alert('Loaded! The page will refresh to show your synced data.');
     location.reload();
@@ -516,7 +725,7 @@ function updateStartBalance(v){
 function addEntry(dk){
   if(!store.entries[dk]) store.entries[dk] = [];
   const id = dk + '_' + Date.now();
-  store.entries[dk].push({id, label:'', amount:null, type:'expense'});
+  store.entries[dk].push({id, label:'', amount:null, type:'expense', category:''});
   saveStore();
   render();
 }
