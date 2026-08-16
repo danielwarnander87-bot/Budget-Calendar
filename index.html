@@ -89,12 +89,21 @@ input.e-lbl{border:0.5px solid transparent;border-radius:3px;font-size:11px;font
 input.e-lbl:hover{border-color:#c3c2b7;}
 input.e-lbl:focus{border-color:#2a78d6;outline:none;background:#fff;}
 input.e-lbl::placeholder{color:#c3c2b7;font-weight:400;}
-input.e-amt{border:0.5px solid transparent;border-radius:3px;font-size:10.5px;width:44px;flex:0 0 auto;padding:1px 2px;text-align:right;font-variant-numeric:tabular-nums;background:transparent;color:#52514e;}
+input.e-amt{border:0.5px solid transparent;border-radius:3px;font-size:10.5px;width:38px;flex:0 0 auto;padding:1px 2px;text-align:right;font-variant-numeric:tabular-nums;background:transparent;color:#52514e;}
 input.e-amt:hover{border-color:#c3c2b7;}
 input.e-amt:focus{border-color:#2a78d6;outline:none;background:#fff;}
-select.e-cat{border:0.5px solid transparent;border-radius:3px;font-size:8.5px;width:50px;flex:0 0 auto;padding:1px 0;background:transparent;color:#52514e;max-width:50px;}
+select.e-cat{border:0.5px solid transparent;border-radius:3px;font-size:8.5px;width:42px;flex:0 0 auto;padding:1px 0;background:transparent;color:#52514e;max-width:42px;}
 select.e-cat:hover{border-color:#c3c2b7;}
 select.e-cat:focus{border-color:#2a78d6;outline:none;background:#fff;}
+input.e-share{border:0.5px solid transparent;border-radius:3px;font-size:8.5px;width:24px;flex:0 0 auto;padding:1px 0;text-align:center;background:transparent;color:#898781;}
+input.e-share:hover{border-color:#c3c2b7;}
+input.e-share:focus{border-color:#2a78d6;outline:none;background:#fff;}
+input.e-share.partial{color:#854f0b;font-weight:700;background:#fff8ec;}
+.cat-mine{font-size:10px;color:#854f0b;font-weight:600;margin-top:1px;text-align:right;}
+.cat-summary-bar{display:flex;flex-direction:column;gap:2px;background:#f1efe8;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:12px;}
+.cat-summary-bar .csb-row{display:flex;justify-content:space-between;}
+.cat-summary-bar .csb-lbl{color:#898781;}
+.cat-summary-bar .csb-mine{font-weight:700;color:#854f0b;}
 .e-del{border:none;background:none;color:#c3c2b7;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1;padding:0 1px;}
 .e-del:hover{color:#a32d2d;}
 
@@ -262,6 +271,11 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
       <div class="val" id="cardProjected">$0.00</div>
       <div class="sub2">starting balance + net</div>
     </div>
+    <div class="card">
+      <div class="lbl">Your true share (expenses)</div>
+      <div class="val warn" id="cardMyShare">$0.00</div>
+      <div class="sub2" id="cardMyShareSub">of $0.00 household total</div>
+    </div>
   </div>
 
   <div class="legend no-print">
@@ -270,6 +284,7 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
     <span>Click "+ add" in any day to add a bill, paycheck, or expense.</span>
     <span>Each day has a "start" field — type your real balance there to correct the projection from that day forward.</span>
     <span>Tag a week 🟢 Daniel or 🟠 Lex in its summary panel — on Daniel's weeks, Tuesday daycare ($214) is added automatically.</span>
+    <span>Each entry has a small % field — set it below 100 for anything you split (like half of rent), and "Your true share" only counts your real portion.</span>
   </div>
 
   <div class="cal-header">
@@ -305,7 +320,7 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
   </div>
 
   <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed. Use "Save to File" / "Load from File" to move your budget between devices.</div>
-  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v10 — printable category report (totals + full activity list)</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v11 — per-entry share % for split expenses (rent, daycare, etc.)</div>
 </div>
 
 <script>
@@ -328,6 +343,28 @@ if(!store.weekOwners) store.weekOwners = {};
 const today = new Date();
 let viewYear = today.getFullYear();
 let viewMonth = today.getMonth(); // 0-indexed
+
+// ---- personal share (for entries split with Lex, e.g. half of rent) ----
+function shareOf(e){
+  const s = (e.share===undefined||e.share===null||e.share==='') ? 100 : parseFloat(e.share);
+  return isNaN(s) ? 100 : Math.max(0, Math.min(100, s));
+}
+function myAmount(e){
+  return (e.amount||0) * shareOf(e) / 100;
+}
+function updateShare(dk,id,v){
+  const e = (store.entries[dk]||[]).find(x=>x.id===id);
+  if(!e) return;
+  if(v===''||v===null||v===undefined){
+    delete e.share;
+  } else {
+    let n = parseFloat(v);
+    if(isNaN(n)) n = 100;
+    e.share = Math.max(0, Math.min(100, n));
+  }
+  saveStore();
+  render();
+}
 
 // ---- categories ----
 const CATEGORIES = [
@@ -375,16 +412,17 @@ function updateCategory(dk,id,v){
 let categoryTotalsScope = 'all';
 function computeCategoryTotals(scope){
   const totals = {};
-  CATEGORIES.forEach(c=>{ totals[c.v] = {expense:0, income:0, count:0}; });
-  totals['__none__'] = {expense:0, income:0, count:0};
+  CATEGORIES.forEach(c=>{ totals[c.v] = {expense:0, income:0, myExpense:0, myIncome:0, count:0}; });
+  totals['__none__'] = {expense:0, income:0, myExpense:0, myIncome:0, count:0};
   const mk = monthKey(viewYear, viewMonth);
   Object.keys(store.entries).forEach(dk=>{
     if(scope==='month' && dk.slice(0,7)!==mk) return;
     (store.entries[dk]||[]).forEach(e=>{
       if(e.amount===null || e.amount===undefined) return;
       const key = (e.category && totals[e.category]) ? e.category : '__none__';
-      if(e.type==='income') totals[key].income += e.amount;
-      else totals[key].expense += e.amount;
+      const mine = myAmount(e);
+      if(e.type==='income'){ totals[key].income += e.amount; totals[key].myIncome += mine; }
+      else { totals[key].expense += e.amount; totals[key].myExpense += mine; }
       totals[key].count++;
     });
   });
@@ -398,14 +436,32 @@ function showCategoryTotals(scope){
   rows.push({v:'__none__', l:'Uncategorized', ...totals['__none__']});
   rows = rows.filter(r=>r.expense>0 || r.income>0);
   rows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
+
+  let totalExpense=0, totalIncome=0, totalMyExpense=0, totalMyIncome=0;
+  rows.forEach(r=>{ totalExpense+=r.expense; totalIncome+=r.income; totalMyExpense+=r.myExpense; totalMyIncome+=r.myIncome; });
+
+  const summaryHtml = rows.length ? `<div class="cat-summary-bar">
+    <div class="csb-row"><span class="csb-lbl">Household total</span><span>-${fmt(totalExpense)} / +${fmt(totalIncome)}</span></div>
+    <div class="csb-row"><span class="csb-lbl">Your actual share</span><span class="csb-mine">-${fmt(totalMyExpense)} / +${fmt(totalMyIncome)}</span></div>
+  </div>` : '';
+
   if(!rows.length){
     body.innerHTML = '<div class="cat-empty">No categorized entries yet'+(categoryTotalsScope==='month'?' this month':'')+'. Pick a category from the small dropdown on any entry and it\'ll show up here.</div>';
   } else {
-    body.innerHTML = rows.map(r=>{
+    body.innerHTML = summaryHtml + rows.map(r=>{
       let amtHtml = '';
       if(r.expense>0) amtHtml += '<span class="cat-amt exp">-'+fmt(r.expense)+'</span>';
       if(r.income>0) amtHtml += '<span class="cat-amt inc">+'+fmt(r.income)+'</span>';
-      return '<div class="cat-row"><span class="cat-name">'+r.l+'<span class="cat-count">('+r.count+')</span></span><span>'+amtHtml+'</span></div>';
+      let mineHtml = '';
+      const expDiffers = Math.abs(r.myExpense-r.expense) > 0.004;
+      const incDiffers = Math.abs(r.myIncome-r.income) > 0.004;
+      if(expDiffers || incDiffers){
+        let parts = [];
+        if(r.expense>0) parts.push('-'+fmt(r.myExpense));
+        if(r.income>0) parts.push('+'+fmt(r.myIncome));
+        mineHtml = '<div class="cat-mine">yours: '+parts.join(' / ')+'</div>';
+      }
+      return '<div class="cat-row"><span class="cat-name">'+r.l+'<span class="cat-count">('+r.count+')</span></span><span>'+amtHtml+mineHtml+'</span></div>';
     }).join('');
   }
   document.querySelectorAll('.cat-scope-btn').forEach(b=>b.classList.toggle('active', b.dataset.scope===categoryTotalsScope));
@@ -423,14 +479,18 @@ function buildPrintReportHtml(){
   catRows = catRows.filter(r=>r.expense>0 || r.income>0);
   catRows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
 
-  let totalExpense=0, totalIncome=0;
-  catRows.forEach(r=>{ totalExpense+=r.expense; totalIncome+=r.income; });
+  let totalExpense=0, totalIncome=0, totalMyExpense=0, totalMyIncome=0;
+  catRows.forEach(r=>{ totalExpense+=r.expense; totalIncome+=r.income; totalMyExpense+=r.myExpense; totalMyIncome+=r.myIncome; });
 
-  let catHtml = '<table class="pr-table"><thead><tr><th>Category</th><th>#</th><th>Expenses</th><th>Income</th></tr></thead><tbody>';
+  let catHtml = '<table class="pr-table"><thead><tr><th>Category</th><th>#</th><th>Expenses</th><th>Income</th><th>Your Share (Net)</th></tr></thead><tbody>';
   catRows.forEach(r=>{
-    catHtml += '<tr><td>'+r.l+'</td><td>'+r.count+'</td><td class="pr-exp">'+(r.expense>0?fmt(r.expense):'—')+'</td><td class="pr-inc">'+(r.income>0?fmt(r.income):'—')+'</td></tr>';
+    const myNet = r.myIncome - r.myExpense;
+    const myNetClass = myNet<0 ? 'pr-exp' : 'pr-inc';
+    catHtml += '<tr><td>'+r.l+'</td><td>'+r.count+'</td><td class="pr-exp">'+(r.expense>0?fmt(r.expense):'—')+'</td><td class="pr-inc">'+(r.income>0?fmt(r.income):'—')+'</td><td class="'+myNetClass+'">'+(myNet<0?'-':'+')+fmt(Math.abs(myNet))+'</td></tr>';
   });
-  catHtml += '</tbody><tfoot><tr><td>Total</td><td></td><td class="pr-exp">'+fmt(totalExpense)+'</td><td class="pr-inc">'+fmt(totalIncome)+'</td></tr></tfoot></table>';
+  const grandMyNet = totalMyIncome - totalMyExpense;
+  const grandMyNetClass = grandMyNet<0 ? 'pr-exp' : 'pr-inc';
+  catHtml += '</tbody><tfoot><tr><td>Total</td><td></td><td class="pr-exp">'+fmt(totalExpense)+'</td><td class="pr-inc">'+fmt(totalIncome)+'</td><td class="'+grandMyNetClass+'">'+(grandMyNet<0?'-':'+')+fmt(Math.abs(grandMyNet))+'</td></tr></tfoot></table>';
 
   const dayKeys = Object.keys(store.entries).filter(dk=>dk.slice(0,7)===mk).sort();
   const activityRows = [];
@@ -443,23 +503,26 @@ function buildPrintReportHtml(){
         label: (e.label && e.label.trim()) ? e.label : '(no label)',
         category: catObj ? catObj.full : '—',
         amount: e.amount,
-        type: e.type
+        type: e.type,
+        share: shareOf(e),
+        mine: myAmount(e)
       });
     });
   });
 
-  let actHtml = '<table class="pr-table"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody>';
+  let actHtml = '<table class="pr-table"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Your Share</th></tr></thead><tbody>';
   activityRows.forEach(r=>{
     const parts = r.dk.split('-').map(Number);
     const dLabel = new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
     const amtClass = r.type==='income' ? 'pr-inc' : 'pr-exp';
     const amtSign = r.type==='income' ? '+' : '-';
-    actHtml += '<tr><td style="text-align:left;">'+dLabel+'</td><td style="text-align:left;">'+escapeAttr(r.label)+'</td><td style="text-align:left;">'+r.category+'</td><td class="'+amtClass+'">'+amtSign+fmt(r.amount)+'</td></tr>';
+    const yourCell = r.share===100 ? '—' : (amtSign+fmt(r.mine)+' ('+r.share+'%)');
+    actHtml += '<tr><td style="text-align:left;">'+dLabel+'</td><td style="text-align:left;">'+escapeAttr(r.label)+'</td><td style="text-align:left;">'+r.category+'</td><td class="'+amtClass+'">'+amtSign+fmt(r.amount)+'</td><td class="'+amtClass+'">'+yourCell+'</td></tr>';
   });
   actHtml += '</tbody></table>';
 
   document.getElementById('printReportWrap').innerHTML =
-    '<div class="pr-head"><h2>'+monthName+' '+viewYear+' — Category Report</h2><div class="pr-sub">'+activityRows.length+' entries this month</div></div>'+
+    '<div class="pr-head"><h2>'+monthName+' '+viewYear+' — Category Report</h2><div class="pr-sub">'+activityRows.length+' entries this month · Household net '+fmt(totalIncome-totalExpense)+' · Your net '+fmt(grandMyNet)+'</div></div>'+
     '<div class="pr-section-title">Category Totals</div>'+catHtml+
     '<div class="pr-section-title">All Activity, Chronological</div>'+actHtml;
 }
@@ -605,6 +668,7 @@ function render(){
   const weeks = buildGrid(viewYear, viewMonth);
   let running = startBal;
   let totalIncome = 0, totalExpense = 0, incomeCount=0, expenseCount=0;
+  let myExpenseTotal = 0;
   let todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
   let balanceAsOfToday = null;
   const isCurrentMonth = (viewYear===today.getFullYear() && viewMonth===today.getMonth());
@@ -633,7 +697,7 @@ function render(){
         running = actualStart + net;
         ents.forEach(e=>{
           if(e.type==='income'){totalIncome += (e.amount||0); incomeCount++; weekIncome += (e.amount||0);}
-          else {totalExpense += (e.amount||0); expenseCount++; weekExpense += (e.amount||0);}
+          else {totalExpense += (e.amount||0); expenseCount++; weekExpense += (e.amount||0); myExpenseTotal += myAmount(e);}
         });
         weekEndBal = running;
         if(dk===todayKey) balanceAsOfToday = running;
@@ -648,6 +712,7 @@ function render(){
             <button class="type-tog ${isIncome?'income':'expense'} no-print" onclick="toggleType('${dk}','${e.id}')">${isIncome?'+':'−'}</button>
             <select class="e-cat no-print" onchange="updateCategory('${dk}','${e.id}',this.value)">${categoryOptionsHtml(e.category||'')}</select>
             <input class="e-lbl" type="text" value="${escapeAttr(e.label)}" title="${escapeAttr(e.label)}" placeholder="label" onchange="updateLabel('${dk}','${e.id}',this.value)">
+            <input class="e-share no-print${shareOf(e)!==100?' partial':''}" type="number" min="0" max="100" step="1" value="${(e.share!==undefined&&e.share!==null&&e.share!=='')?e.share:''}" placeholder="100" title="Your share % of this entry — 100 = fully yours, 50 = split down the middle" onchange="updateShare('${dk}','${e.id}',this.value)">
             <input class="e-amt" type="number" step="0.01" value="${e.amount!==null&&e.amount!==undefined?e.amount:''}" placeholder="0.00" onchange="updateAmount('${dk}','${e.id}',this.value)">
             <button class="e-del no-print" onclick="deleteEntry('${dk}','${e.id}')">×</button>
           </div>`;
@@ -695,6 +760,9 @@ function render(){
   const projEl = document.getElementById('cardProjected');
   projEl.textContent = fmtSigned(projected);
   projEl.className = 'val ' + (projected<0?'danger':projected<100?'warn':'success');
+
+  document.getElementById('cardMyShare').textContent = fmt(myExpenseTotal);
+  document.getElementById('cardMyShareSub').textContent = 'of ' + fmt(totalExpense) + ' household total';
 
   const todayEl = document.getElementById('cardToday');
   const todaySubEl = document.getElementById('cardTodaySub');
