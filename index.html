@@ -186,6 +186,20 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
 .cat-amt.inc{color:#3b6d11;margin-left:6px;}
 .cat-empty{color:#898781;font-size:13px;padding:6px 0;}
 
+/* ---------- Printable Category Report (categories + full activity list) ---------- */
+#printReportWrap{display:none;}
+.pr-head{text-align:center;margin-bottom:16px;}
+.pr-head h2{font-size:17px;font-weight:700;}
+.pr-head .pr-sub{font-size:11px;color:#898781;margin-top:2px;}
+.pr-section-title{font-size:13px;font-weight:700;margin:18px 0 6px;border-bottom:1.5px solid #0b0b0b;padding-bottom:4px;}
+.pr-table{width:100%;border-collapse:collapse;font-size:11px;}
+.pr-table th{text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;color:#52514e;border-bottom:1px solid #0b0b0b;padding:4px 6px;}
+.pr-table td{padding:3px 6px;border-bottom:0.5px solid #d8d7cf;}
+.pr-table th:not(:first-child),.pr-table td:not(:first-child){text-align:right;}
+.pr-table tfoot td{font-weight:700;border-top:1.5px solid #0b0b0b;border-bottom:none;padding-top:5px;}
+.pr-exp{color:#a32d2d;font-variant-numeric:tabular-nums;}
+.pr-inc{color:#3b6d11;font-variant-numeric:tabular-nums;}
+
 @media print{
   body{background:#fff;padding:0;}
   .no-print{display:none !important;}
@@ -193,6 +207,13 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
   .day-cell{break-inside:avoid;}
   .cards{margin-bottom:0.75rem;}
   @page{size:landscape;margin:10mm;}
+
+  body.report-mode .cards,
+  body.report-mode .legend,
+  body.report-mode .cal-header,
+  body.report-mode #calBody{display:none !important;}
+  body.report-mode #printReportWrap{display:block !important;}
+  body.report-mode .pr-table tr{page-break-inside:avoid;}
 }
 </style>
 </head>
@@ -207,6 +228,7 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
     </div>
     <button class="nav-btn" onclick="changeMonth(1)">next →</button>
     <button class="nav-btn primary" onclick="window.print()">🖨 Print</button>
+    <button class="nav-btn primary" onclick="printCategoryReport()">🖨 Print Category Report</button>
   </div>
 
   <div class="search-bar no-print">
@@ -257,6 +279,8 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
 
   <div id="calBody"></div>
 
+  <div id="printReportWrap"></div>
+
   <div class="actions no-print">
     <button class="nav-btn" onclick="copyPreviousMonth()">↪ Copy last month's entries into this month</button>
     <button class="nav-btn" onclick="clearMonth()">🗑 Clear this month</button>
@@ -281,7 +305,7 @@ input.start-in.overridden{color:#854f0b;font-weight:700;}
   </div>
 
   <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed. Use "Save to File" / "Load from File" to move your budget between devices.</div>
-  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v9 — per-entry categories + Category Totals</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v10 — printable category report (totals + full activity list)</div>
 </div>
 
 <script>
@@ -387,6 +411,66 @@ function showCategoryTotals(scope){
   document.querySelectorAll('.cat-scope-btn').forEach(b=>b.classList.toggle('active', b.dataset.scope===categoryTotalsScope));
   document.getElementById('categoryTotalsOverlay').classList.add('open');
 }
+
+/* ---------- Printable Category Report ---------- */
+function buildPrintReportHtml(){
+  const mk = monthKey(viewYear, viewMonth);
+  const monthName = new Date(viewYear, viewMonth, 1).toLocaleString('en-US',{month:'long'});
+  const totals = computeCategoryTotals('month');
+
+  let catRows = CATEGORIES.map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
+  catRows.push({v:'__none__', l:'Uncategorized', ...totals['__none__']});
+  catRows = catRows.filter(r=>r.expense>0 || r.income>0);
+  catRows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
+
+  let totalExpense=0, totalIncome=0;
+  catRows.forEach(r=>{ totalExpense+=r.expense; totalIncome+=r.income; });
+
+  let catHtml = '<table class="pr-table"><thead><tr><th>Category</th><th>#</th><th>Expenses</th><th>Income</th></tr></thead><tbody>';
+  catRows.forEach(r=>{
+    catHtml += '<tr><td>'+r.l+'</td><td>'+r.count+'</td><td class="pr-exp">'+(r.expense>0?fmt(r.expense):'—')+'</td><td class="pr-inc">'+(r.income>0?fmt(r.income):'—')+'</td></tr>';
+  });
+  catHtml += '</tbody><tfoot><tr><td>Total</td><td></td><td class="pr-exp">'+fmt(totalExpense)+'</td><td class="pr-inc">'+fmt(totalIncome)+'</td></tr></tfoot></table>';
+
+  const dayKeys = Object.keys(store.entries).filter(dk=>dk.slice(0,7)===mk).sort();
+  const activityRows = [];
+  dayKeys.forEach(dk=>{
+    (store.entries[dk]||[]).forEach(e=>{
+      if(e.amount===null || e.amount===undefined) return;
+      const catObj = e.category ? CATEGORIES.find(c=>c.v===e.category) : null;
+      activityRows.push({
+        dk,
+        label: (e.label && e.label.trim()) ? e.label : '(no label)',
+        category: catObj ? catObj.full : '—',
+        amount: e.amount,
+        type: e.type
+      });
+    });
+  });
+
+  let actHtml = '<table class="pr-table"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody>';
+  activityRows.forEach(r=>{
+    const parts = r.dk.split('-').map(Number);
+    const dLabel = new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const amtClass = r.type==='income' ? 'pr-inc' : 'pr-exp';
+    const amtSign = r.type==='income' ? '+' : '-';
+    actHtml += '<tr><td style="text-align:left;">'+dLabel+'</td><td style="text-align:left;">'+escapeAttr(r.label)+'</td><td style="text-align:left;">'+r.category+'</td><td class="'+amtClass+'">'+amtSign+fmt(r.amount)+'</td></tr>';
+  });
+  actHtml += '</tbody></table>';
+
+  document.getElementById('printReportWrap').innerHTML =
+    '<div class="pr-head"><h2>'+monthName+' '+viewYear+' — Category Report</h2><div class="pr-sub">'+activityRows.length+' entries this month</div></div>'+
+    '<div class="pr-section-title">Category Totals</div>'+catHtml+
+    '<div class="pr-section-title">All Activity, Chronological</div>'+actHtml;
+}
+function printCategoryReport(){
+  buildPrintReportHtml();
+  document.body.classList.add('report-mode');
+  window.print();
+}
+window.addEventListener('afterprint', ()=>{
+  document.body.classList.remove('report-mode');
+});
 
 // ---- week ownership (Daniel / Lex) + auto Tuesday daycare ----
 const DAYCARE_AMOUNT = 214.00;
