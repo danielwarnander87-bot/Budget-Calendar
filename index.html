@@ -184,6 +184,45 @@ input.e-share.partial{color:#FFC24D;font-weight:700;background:rgba(255,194,77,0
 .add-line:hover{color:#4FD2FF;}
 .pad .add-line{display:none;}
 
+/* ---------- Entry display rows (click to open the full edit box) ---------- */
+.entry-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;cursor:pointer;border-radius:4px;padding:1px 2px;}
+.entry-row:hover{background:rgba(79,210,255,0.08);}
+.e-type-dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 4px currentColor;}
+.e-type-dot.income{background:#35D488;color:#35D488;}
+.e-type-dot.expense{background:#FF5C7A;color:#FF5C7A;}
+.e-lbl-display{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:500;color:#E9EEFF;}
+.e-lbl-display.empty{color:#4A5A88;font-style:italic;}
+.e-share-tag{font-size:8.5px;color:#FFC24D;font-weight:700;flex:0 0 auto;}
+.e-amt-display{font-size:10.5px;font-variant-numeric:tabular-nums;font-weight:600;flex:0 0 auto;}
+.e-amt-display.inc{color:#35D488;}
+.e-amt-display.exp{color:#FF5C7A;}
+.e-del{border:none;background:none;color:#4A5A88;font-size:13px;cursor:pointer;flex:0 0 auto;line-height:1;padding:0 1px;}
+.e-del:hover{color:#FF5C7A;}
+
+/* ---------- Entry edit/add modal ---------- */
+.entry-modal{max-width:400px;}
+.entry-modal-daylabel{font-size:12px;color:#8CA0D4;margin-bottom:14px;}
+.em-type-row{display:flex;gap:8px;margin-bottom:14px;}
+.em-type-btn{flex:1;border:0.5px solid rgba(140,170,255,0.28);background:rgba(18,26,52,0.6);border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;color:#B7C5EE;}
+.em-type-btn.active.expense{background:linear-gradient(135deg,#FF5C7A,#D63958);color:#fff;border-color:#FF5C7A;box-shadow:0 0 10px rgba(255,92,122,0.4);}
+.em-type-btn.active.income{background:linear-gradient(135deg,#35D488,#1F8F5C);color:#fff;border-color:#35D488;box-shadow:0 0 10px rgba(53,212,136,0.4);}
+.em-field{margin-bottom:14px;}
+.em-field label{display:block;font-size:11.5px;color:#B7C5EE;font-weight:600;margin-bottom:5px;}
+.em-field input,.em-field select{
+  width:100%;background:rgba(8,12,26,0.6);border:0.5px solid rgba(140,170,255,0.28);border-radius:8px;
+  padding:9px 11px;font-size:14px;color:#E9EEFF;
+}
+.em-field select option{background:#121a38;color:#E9EEFF;}
+.em-field input:focus,.em-field select:focus{outline:none;border-color:#4FD2FF;box-shadow:0 0 8px rgba(79,210,255,0.3);}
+.em-field .em-hint{font-size:10.5px;color:#6478A8;margin-top:4px;}
+.em-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;}
+.em-delete-btn{
+  margin-right:auto;background:none;border:0.5px solid rgba(255,92,122,0.4);color:#FF5C7A;
+  border-radius:8px;padding:8px 14px;font-size:12.5px;cursor:pointer;
+}
+.em-cancel-btn{background:rgba(18,26,52,0.7);border:0.5px solid rgba(140,170,255,0.25);color:#B7C5EE;border-radius:8px;padding:8px 16px;font-size:12.5px;cursor:pointer;}
+.em-save-btn{background:linear-gradient(135deg,#4FD2FF,#2C9FD1);border:none;color:#04101c;border-radius:8px;padding:8px 20px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 0 12px rgba(79,210,255,0.35);}
+
 .day-foot{font-size:10px;color:#8CA0D4;border-top:0.5px dashed rgba(140,170,255,0.18);margin-top:2px;padding-top:3px;display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;}
 .day-foot .bal{font-weight:600;}
 .day-foot .bal.neg{color:#FF5C7A;}
@@ -289,28 +328,6 @@ input.start-in.overridden{color:#FFC24D;font-weight:700;}
 .sfx-toggle-btn.is-muted{opacity:0.5;}
 .sfx-toggle-btn:hover{border-color:rgba(160,190,255,0.5);}
 
-/* ---------- CSV Import modal ---------- */
-.csv-modal{max-width:640px;}
-.csv-step-label{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#8CA0D4;margin-bottom:8px;}
-.csv-map-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.csv-map-field{display:flex;flex-direction:column;gap:4px;}
-.csv-map-field label{font-size:11.5px;color:#B7C5EE;font-weight:600;}
-.csv-map-field select{
-  background:rgba(8,12,26,0.6);border:0.5px solid rgba(140,170,255,0.28);border-radius:6px;
-  padding:6px 8px;font-size:12.5px;color:#E9EEFF;
-}
-.csv-map-field select option{background:#121a38;color:#E9EEFF;}
-.csv-toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:12.5px;color:#B7C5EE;}
-.csv-toggle-row input{accent-color:#4FD2FF;width:15px;height:15px;}
-.csv-preview-wrap{max-height:180px;overflow:auto;border:0.5px solid rgba(140,170,255,0.2);border-radius:8px;margin-bottom:14px;}
-.csv-preview-table{width:100%;border-collapse:collapse;font-size:11px;}
-.csv-preview-table th{position:sticky;top:0;background:#151d3c;text-align:left;padding:5px 8px;color:#8CA0D4;font-weight:600;border-bottom:0.5px solid rgba(140,170,255,0.25);white-space:nowrap;}
-.csv-preview-table td{padding:4px 8px;border-bottom:0.5px solid rgba(140,170,255,0.1);color:#E9EEFF;white-space:nowrap;}
-.csv-import-status{font-size:12.5px;color:#8CA0D4;margin-top:10px;min-height:16px;}
-.csv-import-status.success{color:#35D488;}
-.csv-import-status.error{color:#FF5C7A;}
-.csv-actions-row{display:flex;gap:8px;justify-content:flex-end;}
-
 @media print{
   body{background:#fff;padding:0;}
   body::before{display:none!important;}
@@ -341,44 +358,7 @@ input.start-in.overridden{color:#FFC24D;font-weight:700;}
     <button class="nav-btn" onclick="changeMonth(1)">next →</button>
     <button class="nav-btn primary" onclick="window.print()">🖨 Print</button>
     <button class="nav-btn primary" onclick="printCategoryReport()">🖨 Print Category Report</button>
-    <button class="nav-btn sync-btn" onclick="document.getElementById('csvFileInput').click()">📥 Import CSV</button>
-    <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none;" onchange="handleCsvFileSelect(event)">
     <button class="sfx-toggle-btn" id="sfxMuteBtn" type="button" onclick="toggleSfxMute()">🔊 Echoes</button>
-  </div>
-
-  <div class="cat-overlay" id="csvImportOverlay" onclick="if(event.target===this)closeCsvImport();">
-    <div class="cat-modal csv-modal">
-      <div class="cat-modal-head">
-        <span>📥 Import Bank/Card CSV</span>
-        <button onclick="closeCsvImport();">✕</button>
-      </div>
-      <div class="csv-step-label">Match your file's columns</div>
-      <div class="csv-map-grid">
-        <div class="csv-map-field">
-          <label>Date column</label>
-          <select id="csvColDate"></select>
-        </div>
-        <div class="csv-map-field">
-          <label>Description column</label>
-          <select id="csvColDesc"></select>
-        </div>
-        <div class="csv-map-field">
-          <label>Amount column</label>
-          <select id="csvColAmount"></select>
-        </div>
-        <div class="csv-map-field">
-          <label>Credit / income column (optional)</label>
-          <select id="csvColCredit"><option value="">— none, one amount column —</option></select>
-        </div>
-      </div>
-      <label class="csv-toggle-row"><input type="checkbox" id="csvFlipSigns"> Flip signs (use this if imported charges show up as income)</label>
-      <div class="csv-step-label">Preview (first 5 rows)</div>
-      <div class="csv-preview-wrap"><table class="csv-preview-table" id="csvPreviewTable"></table></div>
-      <div class="csv-actions-row">
-        <button class="nav-btn sync-btn" type="button" onclick="runCsvImport()">Import entries →</button>
-      </div>
-      <div class="csv-import-status" id="csvImportStatus"></div>
-    </div>
   </div>
 
   <div class="search-bar no-print">
@@ -422,10 +402,11 @@ input.start-in.overridden{color:#FFC24D;font-weight:700;}
   <div class="legend no-print">
     <span><span class="dot inc"></span>income (tap the − to flip to +)</span>
     <span><span class="dot exp"></span>expense (default)</span>
-    <span>Click "+ add" in any day to add a bill, paycheck, or expense.</span>
+    <span>Click "+ add" in any day to open a proper box for entering a bill, paycheck, or expense — click any existing entry to edit it the same way.</span>
     <span>Each day has a "start" field — type your real balance there to correct the projection from that day forward.</span>
     <span>Tag a week 🟢 Daniel or 🟠 Lex in its summary panel — on Daniel's weeks, Tuesday daycare ($214) is added automatically.</span>
-    <span>Each entry has a small % field — set it below 100 for anything you split (like half of rent), and "Your true share" only counts your real portion.</span>
+    <span>Each entry can have a share % — leave it blank if it's fully yours, or set it below 100 for anything you split (like half of rent), and "Your true share" only counts your real portion.</span>
+    <span>Pick "+ New category…" at the bottom of any category dropdown to add your own — it's saved and shows up as an option on every entry from then on.</span>
   </div>
 
   <div class="cal-header">
@@ -446,6 +427,42 @@ input.start-in.overridden{color:#FFC24D;font-weight:700;}
     <input type="file" id="loadFileInput" accept="application/json" style="display:none;" onchange="loadFromFile(event)">
   </div>
 
+  <div class="cat-overlay" id="entryModalOverlay" onclick="if(event.target===this)closeEntryModal();">
+    <div class="cat-modal entry-modal">
+      <div class="cat-modal-head">
+        <span id="entryModalTitle">Add Entry</span>
+        <button onclick="closeEntryModal();">✕</button>
+      </div>
+      <div class="entry-modal-daylabel" id="entryModalDayLabel"></div>
+      <div class="em-type-row">
+        <button type="button" class="em-type-btn expense" id="emTypeExpenseBtn" onclick="setEntryModalType('expense')">− Expense</button>
+        <button type="button" class="em-type-btn income" id="emTypeIncomeBtn" onclick="setEntryModalType('income')">+ Income</button>
+      </div>
+      <div class="em-field">
+        <label>What is it?</label>
+        <input type="text" id="emLabel" placeholder="e.g. Groceries, Rent, Paycheck" onkeydown="if(event.key==='Enter')saveEntryModal();">
+      </div>
+      <div class="em-field">
+        <label>Amount</label>
+        <input type="number" step="0.01" id="emAmount" placeholder="0.00" onkeydown="if(event.key==='Enter')saveEntryModal();">
+      </div>
+      <div class="em-field">
+        <label>Category</label>
+        <select id="emCategory"></select>
+      </div>
+      <div class="em-field">
+        <label>Your share %</label>
+        <input type="number" min="0" max="100" step="1" id="emShare" placeholder="100" onkeydown="if(event.key==='Enter')saveEntryModal();">
+        <div class="em-hint">Leave blank if it's fully yours. Set to 50 for something split down the middle, like half of rent.</div>
+      </div>
+      <div class="em-actions">
+        <button type="button" class="em-delete-btn" id="entryModalDeleteBtn" onclick="deleteEntryModal();">🗑 Delete</button>
+        <button type="button" class="em-cancel-btn" onclick="closeEntryModal();">Cancel</button>
+        <button type="button" class="em-save-btn" onclick="saveEntryModal();">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="cat-overlay" id="categoryTotalsOverlay" onclick="if(event.target===this)document.getElementById('categoryTotalsOverlay').classList.remove('open');">
     <div class="cat-modal">
       <div class="cat-modal-head">
@@ -461,7 +478,7 @@ input.start-in.overridden{color:#FFC24D;font-weight:700;}
   </div>
 
   <div class="footer-note no-print">Data saves automatically in this browser. Use "Copy last month's entries" each month to carry over recurring bills, then adjust amounts as needed. Use "Save to File" / "Load from File" to move your budget between devices.</div>
-  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v11 — per-entry share % for split expenses (rent, daycare, etc.)</div>
+  <div class="footer-note no-print" style="margin-top:4px;opacity:0.6;">Budget Master · Build v13 — full-size Add/Edit Entry box instead of tiny inline fields</div>
 </div>
 
 <script>
@@ -586,21 +603,47 @@ const CATEGORIES = [
   {v:'groceries', short:'Groceries', full:'Groceries'},
   {v:'random', short:'Random', full:'Random'}
 ];
+// ---- open / custom categories you name yourself ----
+const CUSTOM_CATEGORIES_KEY = 'budgetMaster_customCategories';
+let customCategories = [];
+try{
+  const raw = localStorage.getItem(CUSTOM_CATEGORIES_KEY);
+  if(raw) customCategories = JSON.parse(raw);
+}catch(e){}
+function saveCustomCategories(){
+  try{ localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(customCategories)); }catch(e){}
+}
+function allCategories(){
+  return CATEGORIES.concat(customCategories);
+}
 function categoryOptionsHtml(selected){
   let html = '<option value=""'+(!selected?' selected':'')+'>— cat —</option>';
-  CATEGORIES.forEach(c=>{
-    html += '<option value="'+c.v+'"'+(selected===c.v?' selected':'')+'>'+c.short+'</option>';
+  allCategories().forEach(c=>{
+    html += '<option value="'+c.v+'"'+(selected===c.v?' selected':'')+'>'+escapeAttr(c.short)+'</option>';
   });
+  html += '<option value="__new__">+ New category…</option>';
   return html;
 }
 function updateCategory(dk,id,v){
   const e = (store.entries[dk]||[]).find(x=>x.id===id);
   if(!e) return;
+
+  if(v === '__new__'){
+    const name = prompt('Name your new category (e.g. "Pet Supplies", "Kids Activities"):');
+    if(!name || !name.trim()){ render(); return; } // cancelled — snap the dropdown back
+    const trimmed = name.trim();
+    const slug = 'custom_' + trimmed.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'') + '_' + Date.now().toString(36).slice(-4);
+    const shortLabel = trimmed.length > 12 ? trimmed.slice(0,11)+'…' : trimmed;
+    customCategories.push({v:slug, short:shortLabel, full:trimmed});
+    saveCustomCategories();
+    v = slug;
+  }
+
   e.category = v;
   // if there's no typed label yet, fill it with the full category name so
   // it still reads clearly in print / the entry list, not just the dropdown
   if(v && (!e.label || !e.label.trim())){
-    const cat = CATEGORIES.find(c=>c.v===v);
+    const cat = allCategories().find(c=>c.v===v);
     if(cat) e.label = cat.full;
   }
   saveStore();
@@ -609,7 +652,7 @@ function updateCategory(dk,id,v){
 let categoryTotalsScope = 'all';
 function computeCategoryTotals(scope){
   const totals = {};
-  CATEGORIES.forEach(c=>{ totals[c.v] = {expense:0, income:0, myExpense:0, myIncome:0, count:0}; });
+  allCategories().forEach(c=>{ totals[c.v] = {expense:0, income:0, myExpense:0, myIncome:0, count:0}; });
   totals['__none__'] = {expense:0, income:0, myExpense:0, myIncome:0, count:0};
   const mk = monthKey(viewYear, viewMonth);
   Object.keys(store.entries).forEach(dk=>{
@@ -629,7 +672,7 @@ function showCategoryTotals(scope){
   categoryTotalsScope = scope || categoryTotalsScope || 'all';
   const totals = computeCategoryTotals(categoryTotalsScope);
   const body = document.getElementById('categoryTotalsBody');
-  let rows = CATEGORIES.map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
+  let rows = allCategories().map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
   rows.push({v:'__none__', l:'Uncategorized', ...totals['__none__']});
   rows = rows.filter(r=>r.expense>0 || r.income>0);
   rows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
@@ -671,7 +714,7 @@ function buildPrintReportHtml(){
   const monthName = new Date(viewYear, viewMonth, 1).toLocaleString('en-US',{month:'long'});
   const totals = computeCategoryTotals('month');
 
-  let catRows = CATEGORIES.map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
+  let catRows = allCategories().map(c=>({v:c.v, l:c.full, ...totals[c.v]}));
   catRows.push({v:'__none__', l:'Uncategorized', ...totals['__none__']});
   catRows = catRows.filter(r=>r.expense>0 || r.income>0);
   catRows.sort((a,b)=> (b.expense+b.income) - (a.expense+a.income));
@@ -905,17 +948,18 @@ function render(){
           <div class="entries">`;
         ents.forEach(e=>{
           const isIncome = e.type==='income';
-          calHtml += `<div class="entry-row">
-            <button class="type-tog ${isIncome?'income':'expense'} no-print" onclick="toggleType('${dk}','${e.id}')">${isIncome?'+':'−'}</button>
-            <select class="e-cat no-print" onchange="updateCategory('${dk}','${e.id}',this.value)">${categoryOptionsHtml(e.category||'')}</select>
-            <input class="e-lbl" type="text" value="${escapeAttr(e.label)}" title="${escapeAttr(e.label)}" placeholder="label" onchange="updateLabel('${dk}','${e.id}',this.value)">
-            <input class="e-share no-print${shareOf(e)!==100?' partial':''}" type="number" min="0" max="100" step="1" value="${(e.share!==undefined&&e.share!==null&&e.share!=='')?e.share:''}" placeholder="100" title="Your share % of this entry — 100 = fully yours, 50 = split down the middle" onchange="updateShare('${dk}','${e.id}',this.value)">
-            <input class="e-amt" type="number" step="0.01" value="${e.amount!==null&&e.amount!==undefined?e.amount:''}" placeholder="0.00" onchange="updateAmount('${dk}','${e.id}',this.value)">
-            <button class="e-del no-print" onclick="deleteEntry('${dk}','${e.id}')">×</button>
+          const shareTag = shareOf(e)!==100 ? `<span class="e-share-tag">${shareOf(e)}%</span>` : '';
+          const lblText = (e.label && e.label.trim()) ? escapeAttr(e.label) : '(no label)';
+          calHtml += `<div class="entry-row" onclick="openEditEntryModal('${dk}','${e.id}')">
+            <span class="e-type-dot ${isIncome?'income':'expense'}"></span>
+            <span class="e-lbl-display${(e.label&&e.label.trim())?'':' empty'}" title="${escapeAttr(e.label)}">${lblText}</span>
+            ${shareTag}
+            <span class="e-amt-display ${isIncome?'inc':'exp'}">${e.amount!==null&&e.amount!==undefined?fmt(e.amount):'—'}</span>
+            <button class="e-del no-print" onclick="event.stopPropagation();deleteEntry('${dk}','${e.id}')">×</button>
           </div>`;
         });
         calHtml += `</div>
-          <button class="add-line no-print" onclick="addEntry('${dk}')">+ add</button>
+          <button class="add-line no-print" onclick="openAddEntryModal('${dk}')">+ add</button>
           <div class="day-start-row${hasOverride?' has-override':''}">
             <span>start</span>
             <input class="start-in${hasOverride?' overridden':''}" type="number" step="0.01" value="${hasOverride?override:''}" placeholder="${dayStartComputed.toFixed(2)}" title="Type your actual balance at the start of this day to re-anchor everything after it" onchange="setDayStart('${dk}',this.value)">
@@ -977,202 +1021,6 @@ function render(){
 function escapeAttr(s){
   return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
-
-/* ============================================================
-   CSV IMPORT — parse a bank/card export and turn rows into entries.
-   No live bank connection (that needs a real backend), but this
-   cuts the manual-typing part way down.
-   ============================================================ */
-let csvRows = []; // array of arrays, csvRows[0] = headers
-function parseCSV(text){
-  const rows = [];
-  let row = [];
-  let field = '';
-  let inQuotes = false;
-  text = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  for(let i=0;i<text.length;i++){
-    const c = text[i];
-    if(inQuotes){
-      if(c==='"'){
-        if(text[i+1]==='"'){ field+='"'; i++; }
-        else inQuotes=false;
-      } else field+=c;
-    } else {
-      if(c==='"') inQuotes=true;
-      else if(c===','){ row.push(field); field=''; }
-      else if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=''; }
-      else field+=c;
-    }
-  }
-  if(field.length || row.length){ row.push(field); rows.push(row); }
-  return rows.filter(r=>r.length>1 || (r.length===1 && r[0].trim()!==''));
-}
-function handleCsvFileSelect(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    csvRows = parseCSV(e.target.result);
-    if(csvRows.length < 2){
-      alert('Couldn\'t find any data rows in that file — make sure it\'s a CSV export from your bank or card.');
-      event.target.value='';
-      return;
-    }
-    openCsvImportModal();
-  };
-  reader.onerror = ()=>{ alert('Couldn\'t read that file.'); };
-  reader.readAsText(file);
-}
-function guessColumn(headers, keywords){
-  for(let i=0;i<headers.length;i++){
-    const h = headers[i].toLowerCase();
-    if(keywords.some(k=>h.includes(k))) return i;
-  }
-  return -1;
-}
-function openCsvImportModal(){
-  const headers = csvRows[0];
-  const dateSel = document.getElementById('csvColDate');
-  const descSel = document.getElementById('csvColDesc');
-  const amtSel = document.getElementById('csvColAmount');
-  const creditSel = document.getElementById('csvColCredit');
-
-  const opts = headers.map((h,i)=>'<option value="'+i+'">'+escapeAttr(h||('Column '+(i+1)))+'</option>').join('');
-  dateSel.innerHTML = opts;
-  descSel.innerHTML = opts;
-  amtSel.innerHTML = opts;
-  creditSel.innerHTML = '<option value="">— none, one amount column —</option>' + opts;
-
-  const guessDate = guessColumn(headers,['date']);
-  const guessDesc = guessColumn(headers,['description','desc','memo','payee','name','merchant']);
-  const guessAmt = guessColumn(headers,['amount','amt','debit','withdraw']);
-  const guessCredit = guessColumn(headers,['credit','deposit']);
-  if(guessDate>-1) dateSel.value=guessDate;
-  if(guessDesc>-1) descSel.value=guessDesc;
-  if(guessAmt>-1) amtSel.value=guessAmt;
-  if(guessCredit>-1) creditSel.value=guessCredit;
-
-  document.getElementById('csvFlipSigns').checked = false;
-  document.getElementById('csvImportStatus').textContent='';
-  document.getElementById('csvImportStatus').className='csv-import-status';
-  renderCsvPreview();
-  document.getElementById('csvImportOverlay').classList.add('open');
-}
-function renderCsvPreview(){
-  const table = document.getElementById('csvPreviewTable');
-  const headers = csvRows[0];
-  const dataRows = csvRows.slice(1,6);
-  let html = '<thead><tr>'+headers.map(h=>'<th>'+escapeAttr(h)+'</th>').join('')+'</tr></thead><tbody>';
-  dataRows.forEach(r=>{
-    html += '<tr>'+headers.map((h,i)=>'<td>'+escapeAttr(r[i]||'')+'</td>').join('')+'</tr>';
-  });
-  html += '</tbody>';
-  table.innerHTML = html;
-}
-function closeCsvImport(){
-  document.getElementById('csvImportOverlay').classList.remove('open');
-  document.getElementById('csvFileInput').value='';
-}
-function parseDateFlexible(str){
-  if(!str) return null;
-  str = str.trim();
-  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); // YYYY-MM-DD
-  if(m) return {y:+m[1], mo:+m[2]-1, d:+m[3]};
-  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); // MM/DD/YYYY or MM/DD/YY
-  if(m){
-    let yr = +m[3];
-    if(yr<100) yr += (yr<70?2000:1900);
-    return {y:yr, mo:+m[1]-1, d:+m[2]};
-  }
-  m = str.match(/^(\d{1,2})-(\d{1,2})-(\d{2,4})/); // MM-DD-YYYY
-  if(m){
-    let yr = +m[3];
-    if(yr<100) yr += (yr<70?2000:1900);
-    return {y:yr, mo:+m[1]-1, d:+m[2]};
-  }
-  const d = new Date(str);
-  if(!isNaN(d.getTime())) return {y:d.getFullYear(), mo:d.getMonth(), d:d.getDate()};
-  return null;
-}
-function parseAmountLoose(str){
-  if(str===null||str===undefined) return null;
-  const cleaned = String(str).replace(/[^0-9.\-()]/g,'').trim();
-  if(!cleaned) return null;
-  let neg = false;
-  let s = cleaned;
-  if(s.startsWith('(') && s.endsWith(')')){ neg=true; s=s.slice(1,-1); }
-  if(s.startsWith('-')){ neg=true; s=s.slice(1); }
-  const n = parseFloat(s);
-  if(isNaN(n)) return null;
-  return neg ? -n : n;
-}
-function runCsvImport(){
-  const statusEl = document.getElementById('csvImportStatus');
-  const dateCol = parseInt(document.getElementById('csvColDate').value,10);
-  const descCol = parseInt(document.getElementById('csvColDesc').value,10);
-  const amtCol = parseInt(document.getElementById('csvColAmount').value,10);
-  const creditColRaw = document.getElementById('csvColCredit').value;
-  const creditCol = creditColRaw===''? -1 : parseInt(creditColRaw,10);
-  const flip = document.getElementById('csvFlipSigns').checked;
-
-  const dataRows = csvRows.slice(1);
-  let imported=0, skippedDupe=0, skippedBad=0;
-
-  dataRows.forEach(r=>{
-    const dateStr = r[dateCol];
-    const label = (r[descCol]||'').trim();
-    const dt = parseDateFlexible(dateStr);
-    if(!dt){ skippedBad++; return; }
-
-    let amount, type;
-    if(creditCol > -1){
-      const debitVal = parseAmountLoose(r[amtCol]);
-      const creditVal = parseAmountLoose(r[creditCol]);
-      if(creditVal && Math.abs(creditVal)>0){ amount=Math.abs(creditVal); type='income'; }
-      else if(debitVal !== null){ amount=Math.abs(debitVal); type='expense'; }
-      else { skippedBad++; return; }
-    } else {
-      const val = parseAmountLoose(r[amtCol]);
-      if(val===null){ skippedBad++; return; }
-      let isIncome = val > 0;
-      if(flip) isIncome = !isIncome;
-      amount = Math.abs(val);
-      type = isIncome ? 'income' : 'expense';
-    }
-
-    const dk = dateKey(dt.y, dt.mo, dt.d);
-    if(!store.entries[dk]) store.entries[dk]=[];
-    const dupe = store.entries[dk].some(e=>
-      e.label===label && Math.abs((e.amount||0)-amount)<0.005 && e.type===type
-    );
-    if(dupe){ skippedDupe++; return; }
-
-    store.entries[dk].push({
-      id: dk+'_csv_'+Date.now()+'_'+Math.floor(Math.random()*10000),
-      label: label || '(imported)',
-      amount: amount,
-      type: type,
-      category: '',
-      share: undefined
-    });
-    imported++;
-  });
-
-  saveStore();
-  render();
-
-  if(imported===0 && skippedDupe===0){
-    statusEl.className='csv-import-status error';
-    statusEl.textContent = 'Nothing imported — check the column mapping and try again.';
-  } else {
-    statusEl.className='csv-import-status success';
-    statusEl.textContent = '✓ Imported '+imported+' new entr'+(imported===1?'y':'ies')+
-      (skippedDupe?', skipped '+skippedDupe+' already on the calendar':'')+
-      (skippedBad?', couldn\'t read '+skippedBad+' row'+(skippedBad===1?'':'s'):'')+'.';
-  }
-}
-
-
 
 function doSearch(q){
   const resultsEl = document.getElementById('searchResults');
@@ -1267,30 +1115,109 @@ function updateStartBalance(v){
   render();
 }
 
-function addEntry(dk){
-  if(!store.entries[dk]) store.entries[dk] = [];
-  const id = dk + '_' + Date.now();
-  store.entries[dk].push({id, label:'', amount:null, type:'expense', category:''});
-  saveStore();
-  render();
-}
 function deleteEntry(dk,id){
   store.entries[dk] = (store.entries[dk]||[]).filter(e=>e.id!==id);
   saveStore();
   render();
 }
-function updateLabel(dk,id,v){
-  const e = (store.entries[dk]||[]).find(x=>x.id===id);
-  if(e){ e.label=v; saveStore(); }
+
+/* ---------- Add/Edit Entry modal ---------- */
+let entryModalDk=null, entryModalId=null, entryModalType='expense';
+function formatDayLabelForModal(dk){
+  const parts=dk.split('-').map(Number);
+  return new Date(parts[0],parts[1]-1,parts[2]).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 }
-function updateAmount(dk,id,v){
-  const e = (store.entries[dk]||[]).find(x=>x.id===id);
-  if(e){ e.amount = parseFloat(v)||null; saveStore(); render(); }
+function setEntryModalType(t){
+  entryModalType=t;
+  document.getElementById('emTypeExpenseBtn').classList.toggle('active', t==='expense');
+  document.getElementById('emTypeIncomeBtn').classList.toggle('active', t==='income');
 }
-function toggleType(dk,id){
-  const e = (store.entries[dk]||[]).find(x=>x.id===id);
-  if(e){ e.type = e.type==='income'?'expense':'income'; saveStore(); render(); }
+function fillEntryModal(e){
+  document.getElementById('emLabel').value=e.label||'';
+  document.getElementById('emAmount').value=(e.amount!==null&&e.amount!==undefined)?e.amount:'';
+  document.getElementById('emShare').value=(e.share!==undefined&&e.share!==null&&e.share!=='')?e.share:'';
+  document.getElementById('emCategory').innerHTML=categoryOptionsHtml(e.category||'');
+  setEntryModalType(e.type==='income'?'income':'expense');
 }
+function openAddEntryModal(dk){
+  entryModalDk=dk; entryModalId=null;
+  fillEntryModal({label:'',amount:'',type:'expense',category:'',share:''});
+  document.getElementById('entryModalTitle').textContent='Add Entry';
+  document.getElementById('entryModalDeleteBtn').style.display='none';
+  document.getElementById('entryModalDayLabel').textContent=formatDayLabelForModal(dk);
+  document.getElementById('entryModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('emLabel').focus(),50);
+}
+function openEditEntryModal(dk,id){
+  const e=(store.entries[dk]||[]).find(x=>x.id===id);
+  if(!e) return;
+  entryModalDk=dk; entryModalId=id;
+  fillEntryModal(e);
+  document.getElementById('entryModalTitle').textContent='Edit Entry';
+  document.getElementById('entryModalDeleteBtn').style.display='inline-block';
+  document.getElementById('entryModalDayLabel').textContent=formatDayLabelForModal(dk);
+  document.getElementById('entryModalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('emLabel').focus(),50);
+}
+function closeEntryModal(){
+  document.getElementById('entryModalOverlay').classList.remove('open');
+  entryModalDk=null; entryModalId=null;
+}
+function saveEntryModal(){
+  if(!entryModalDk) return;
+  const label=document.getElementById('emLabel').value.trim();
+  const amountRaw=document.getElementById('emAmount').value;
+  const amount=amountRaw===''?null:parseFloat(amountRaw);
+  let categoryVal=document.getElementById('emCategory').value;
+  const shareRaw=document.getElementById('emShare').value;
+
+  if(categoryVal==='__new__'){
+    const name=prompt('Name your new category (e.g. "Pet Supplies", "Kids Activities"):');
+    if(name && name.trim()){
+      const trimmed=name.trim();
+      const slug='custom_'+trimmed.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'')+'_'+Date.now().toString(36).slice(-4);
+      const shortLabel=trimmed.length>12?trimmed.slice(0,11)+'…':trimmed;
+      customCategories.push({v:slug,short:shortLabel,full:trimmed});
+      saveCustomCategories();
+      categoryVal=slug;
+    } else {
+      categoryVal='';
+    }
+  }
+
+  let finalLabel=label;
+  if(!finalLabel && categoryVal){
+    const cat=allCategories().find(c=>c.v===categoryVal);
+    if(cat) finalLabel=cat.full;
+  }
+
+  const shareVal = shareRaw===''? undefined : Math.max(0,Math.min(100,parseFloat(shareRaw)));
+
+  if(!store.entries[entryModalDk]) store.entries[entryModalDk]=[];
+  if(entryModalId){
+    const e=store.entries[entryModalDk].find(x=>x.id===entryModalId);
+    if(e){
+      e.label=finalLabel; e.amount=amount; e.type=entryModalType; e.category=categoryVal;
+      if(shareVal===undefined) delete e.share; else e.share=shareVal;
+    }
+  } else {
+    const id=entryModalDk+'_'+Date.now();
+    const newEntry={id, label:finalLabel, amount, type:entryModalType, category:categoryVal};
+    if(shareVal!==undefined) newEntry.share=shareVal;
+    store.entries[entryModalDk].push(newEntry);
+  }
+  saveStore();
+  closeEntryModal();
+  render();
+}
+function deleteEntryModal(){
+  if(!entryModalDk||!entryModalId) return;
+  store.entries[entryModalDk]=(store.entries[entryModalDk]||[]).filter(x=>x.id!==entryModalId);
+  saveStore();
+  closeEntryModal();
+  render();
+}
+
 
 function setDayStart(dk, v){
   if(v===''||v===null||v===undefined){
